@@ -1,0 +1,14 @@
+[Unit]
+Description=JDs sechome NFS mount service
+After=network.target
+
+[Mount]
+What={{ net_sechome['nfs_server'] }}:{{ net_sechome['nfs_share'] }}
+Where={{ net_sechome['mount_point'] }}
+Type=nfs4
+Options={{ net_sechome['nfs_options'] }}
+TimeoutSec=60
+ForceUnmount=true
+
+[Install]
+WantedBy=multi-user.target

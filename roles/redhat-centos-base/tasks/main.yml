@@ -1,0 +1,172 @@
+---
+- name: Create all necessary directories
+  file:
+    path: '{{ item }}'
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  loop: '{{ create_dirs }}'
+
+- name: Register as subscription credentials with auto-subscribe
+  redhat_subscription:
+    state: present
+    username: '{{ redhat_subscription_username }}'
+    password: '{{ redhat_subscription_password }}'
+    force_register: yes
+    auto_attach: true
+  when: ansible_facts['distribution'] == "RedHat"
+
+- name: 'Install CentOS base packages: {{ rhel7_base_package_install }}'
+  yum:
+    name: '{{ item }}'
+    state: present
+    validate_certs: no
+  loop: '{{ centos_base_package_install }}'
+  when: ansible_facts['distribution'] == "CentOS"
+
+- name: 'Install RedHat base packages: {{ rhel7_base_package_install }}'
+  yum:
+    name: '{{ item }}'
+    state: present
+  loop: '{{ rhel7_base_package_install }}'
+  when: ansible_facts['distribution'] == "RedHat"
+
+- name: 'Remove base packages: {{ rhel7_base_package_remove }}'
+  yum:
+    name: '{{ item }}'
+    state: absent
+  loop: '{{ rhel7_base_package_remove }}'
+  notify:
+    - yum clean
+
+- name: 'Install system files with mode 600 {{ rhel7_gp1_files }}'
+  copy:
+    src: '{{ item }}'
+    dest: '/{{ item }}'
+    owner: root
+    group: root
+    mode: '0600'
+  loop: '{{ rhel7_gp1_files }}'
+
+- name: 'Install system files with mode 644 {{ rhel7_gp2_files }}'
+  copy:
+    src: '{{ item }}'
+    dest: '/{{ item }}'
+    owner: root
+    group: root
+    mode: '0644'
+  loop: '{{ rhel7_gp2_files }}'
+
+- name: 'Install system files with mode 700 {{ rhel7_gp3_files }}'
+  copy:
+    src: '{{ item }}'
+    dest: '/{{ item }}'
+    owner: root
+    group: root
+    mode: '0700'
+  loop: '{{ rhel7_gp3_files }}'
+
+- name: 'Install system files with mode 755 {{ rhel7_gp4_files }}'
+  copy:
+    src: '{{ item }}'
+    dest: '/{{ item }}'
+    owner: root
+    group: root
+    mode: '0755'
+  loop: '{{ rhel7_gp4_files }}'
+
+- name: 'Copy {{ certs_to_copy }} to remote'
+  copy:
+    src: '{{ item }}'
+    dest: '/etc/pki/ca-trust/source/anchors/{{ item }}'
+    owner: root
+    group: root
+    mode: '0644'
+  loop: '{{ certs_to_copy }}'
+  notify: update ca-trust
+
+- name: Push sudoers file
+  copy:
+    src: '{{ sudoers }}'
+    dest: '/{{ sudoers }}'
+    owner: root
+    group: root
+    mode: '0440'
+
+- name: Mitigation for CIS RHEL7 Benchmark section 6.1
+  file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    state: 'directory'
+    mode: '0700'
+  loop: '{{ rhel_stig_fileset1 }}'
+
+- name: Add timestamps to global bash history
+  lineinfile:
+    state: present
+    dest: /etc/bashrc
+    insertbefore: "vim"
+    line: 'export HISTTIMEFORMAT="%F %T "'
+
+- name: Change num_logs in audit config file
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^num_logs ='
+    line: 'num_logs = 20'
+
+- name: Change max_log_file in audit config file
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^max_log_file ='
+    line: 'max_log_file = 10'
+
+- name: Change max_log_file_action in audit config file
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^max_log_file_action ='
+    line: 'max_log_file_action = ROTATE'
+  notify: restart auditd
+
+- name: Set correct Color Coding in /root/.bash_profile
+  lineinfile:
+    path: /root/.bash_profile
+    regexp: '^#Color Coding -- 2010092801'
+    line: '#Color Coding -- 2010092802'
+    backrefs: yes
+
+- name: Remove readonly PS1 in /root/.bash_profile
+  lineinfile:
+    state: absent
+    path: /root/.bash_profile
+    regexp: '^readonly PS1'
+
+- name: Add tmpfs mount for /etc/fstab
+  lineinfile:
+    path: /etc/fstab
+    line: 'tmpfs                                     /dev/shm                tmpfs   defaults,nodev,nosuid,noexec 0 0'
+
+- name: Mitigation for CVE-2017-2636
+  lineinfile:
+    path: /etc/modprobe.d/cve-2017-2636.conf
+    line: 'install n_hdlc /bin/true'
+    create: yes
+
+- name: Set the root password
+  lineinfile:
+    path: /etc/shadow
+    regexp: '^root:'
+    line: 'root:{{ root_pw }}'
+  notify:
+    - sebools
+    - restorecon
+    - restart sshd
+    - restart rsyslog
+
+- name: Ensuring all handlers have been executed
+  meta: flush_handlers
+
+- name: Reboot server
+  reboot:
+  tags: reboot

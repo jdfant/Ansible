@@ -1,0 +1,59 @@
+{{ ansible_managed | comment }}
+
+global
+    log         127.0.0.1 local2
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     20000
+    user        haproxy
+    group       haproxy
+    daemon
+
+    # turn on stats unix socket
+    stats socket /var/lib/haproxy/stats
+
+defaults
+    log                     global
+    option                  dontlognull
+    option                  http-server-close
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 20000
+
+listen  stats :9000
+        stats enable
+        stats realm Haproxy\ Statistics
+        stats uri /haproxy_stats
+        stats auth admin:{{ haproxy_stats_pw }}
+        stats refresh 30
+        mode http
+
+{% for lb_group_def in lb_details %}
+
+listen {{ lb_group_def.name }}
+        bind {{ lb_group_def.vip }}:{{ lb_group_def.container_port }}
+        balance {{ lb_group_def.balance_type }}
+        mode {{ lb_group_def.protocol }}
+{% if lb_group_def.option1 %}
+        option {{ lb_group_def.option1 }}
+{% endif %}
+{% if lb_group_def.option2 %}
+        option {{ lb_group_def.option2 }}
+{% endif %}
+{% if lb_group_def.option3 %}
+        option {{ lb_group_def.option3 }}
+{% endif %}
+
+{% for item in lb_defs %}
+{% if item.lb_group == lb_group_def.name %}
+            server {{ item.server }} {{ item.node_ip }}:{{ item.node_port }} check
+{% endif %}
+{% endfor %}
+{% endfor %}

@@ -1,0 +1,26 @@
+{{ ansible_managed | comment }}
+
+email_alert=1
+email_subj="maldet alert from $HOSTNAME"
+email_addr="email_address"
+email_ignore_clean=1
+scan_clamscan=1
+quar_hits=0
+quar_clean=0
+quar_susp=0
+quar_susp_minuid=500
+maxdepth=15
+minfilesize=32
+maxfilesize=2048k
+hexdepth=61440
+hex_fifo_scan=1
+hex_fifo_depth=524288
+clamav_scan=1
+public_scan=0
+string_length_scan=0
+string_length=150000
+inotify_base_watches=15360
+inotify_stime=30
+inotify_minuid=500
+inotify_webdir=public_html
+inotify_nice=10

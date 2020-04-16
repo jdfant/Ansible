@@ -1,0 +1,69 @@
+[OSEv3:children]
+masters
+nodes
+etcd
+lb
+
+[OSEv3:vars]
+ansible_become=true
+openshift_deployment_type=openshift-enterprise
+
+os_sdn_network_plugin_name=redhat/openshift-ovs-multitenant
+os_firewall_use_firewalld=True
+
+openshift_disable_check=disk_availability
+
+openshift_master_cluster_method=native
+openshift_master_cluster_hostname=prod-openshit
+openshift_master_cluster_public_hostname=prod-openshit.home.lan
+
+openshift_master_identity_providers=[{ "name": "google", "login": "true", "challenge": "false", "mappingMethod": "claim", "kind": "GoogleIdentityProvider", "clientID": "xxxxxxx.apps.googleusercontent.com", "clientSecret": "xxxxxxxxxxxxxxxxxxxxx", "hostedDomain": "home.lan"}]
+
+openshift_master_default_subdomain=prod-openshit.home.lan
+
+openshift_master_session_auth_secret=['xxxxxxxxxxxxxxxxx']
+openshift_master_encryption_secrets=['xxxxxxxxxxxxxxxxxx']
+
+openshift_logging_install_logging=true
+openshift_logging_instaall_eventrouter=true
+openshift_logging_namespace=logging
+openshift_logging_master_public_url="https://prod-openshit.home.lan:8443"
+openshift_logging_eventrouter_nodeselector={"region": "infra"}
+openshift_logging_curator_default_days=7
+openshift_logging_curator_nodeselector={"region": "infra"}
+
+openshift_logging_kibana_hostname=logs.prod-openshit.home.lan
+openshift_logging_kibana_nodeselector={"region": "infra"}
+openshift_logging_fluentd_audit_container_engine=true
+openshift_logging_es_pvc_size="100G"
+openshift_logging_es_nodeselector={"region": "infra"}
+openshift_logging_elasticsearch_kibana_index_mode="shared_ops"
+openshift_logging_kibana_ops_nodeselector={"region": "infra"}
+openshift_logging_curator_ops_nodeselector={"region": "infra"}
+
+openshift_metrics_install_metrics=true
+openshift_metrics_start_cluster=true
+openshift_metrics_cassandra_nodeselector={"region": "infra"}
+openshift_metrics_hawkular_hostname=metrics.prod-openshit.home.lan
+openshift_metrics_hawkular_nodeselector={"region": "infra"}
+openshift_metrics_heapster_nodeselector={"region": "infra"}
+
+[masters]
+prod-openshift-01
+prod-openshift-02
+prod-openshift-03
+
+[inf]
+prod-inf-01
+prod-inf-02
+prod-inf-03
+
+[nodes]
+prod-node-01 openshift_node_labels='{ "region": "infra", "zone": "default"}'
+prod-node-02 openshift_node_labels='{ "region": "infra", "zone": "default"}'
+prod-node-03 openshift_node_labels='{ "region": "home", "zone": "prod" }'
+prod-node-04 openshift_node_labels='{ "region": "home", "zone": "prod" }'
+prod-node-05 openshift_node_labels='{ "region": "home", "zone": "prod" }'
+
+[lb]
+prod-lb01

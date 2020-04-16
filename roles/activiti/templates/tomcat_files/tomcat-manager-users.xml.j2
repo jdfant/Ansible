@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+{{ ansible_managed | comment }}
+-->
+<tomcat-users>
+  <role rolename="manager-script"/>
+  <role rolename="manager-gui"/>
+  <user username="manager-script" password="{{ tomcat_manager_pw }}" roles="manager-script,manager-gui"/>
+</tomcat-users>

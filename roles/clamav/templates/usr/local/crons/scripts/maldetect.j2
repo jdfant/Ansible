@@ -1,0 +1,92 @@
+{{ ansible_managed | comment }}
+
+#!/bin/bash
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
+
+if [ ! -d /var/log/maldetect ] ; then
+    mkdir /var/log/maldetect
+fi
+
+
+LOGFILE="/var/log/maldetect/maldetect.log"
+if [ ! -d /var/log/maldetect ] ; then
+    mkdir -p /var/log/maldetect
+    chmod 700 /var/log/maldetect
+fi
+
+echo -n "" >> $LOGFILE
+
+SCANTYPE=r #daily
+DAYS=" 2"
+TARGETS="-$SCANTYPE ./ $DAYS"
+
+while (( "$#" )) ; do
+
+    case "$1" in 
+
+        -d) 
+            SCANTYPE=r
+            DAYS=" 2"
+            shift
+            ;;
+
+        -f)
+            SCANTYPE=a
+            DAYS=""
+            shift
+            ;;
+
+        *)
+            break
+            ;;
+    esac
+
+done
+
+if [ $# -gt 0 ] ; then
+    TARGETS=""
+    for t in $* ; do
+        if [ ! -e $t ] ; then
+            echo "$t does not exist." >> $LOGFILE
+        elif [ -k $t ] ; then
+            echo "$t is a link and will not be scanned." >> $LOGFILE
+        else
+            if [ "$TARGETS" == "" ] ; then
+                TARGETS="-${SCANTYPE} ${t}${DAYS}"
+            else
+                TARGETS="${TARGETS} -${SCANTYPE} ${t}${DAYS}"
+            fi
+        fi
+    done
+fi
+if [[ $(echo ${TARGETS} | wc -c) -eq 0 ]] ; then 
+    echo "No valid targets found." >> $LOGFILE
+    exit 1
+fi
+
+# clear quarantine/session/tmp data every 14 days
+/usr/sbin/tmpwatch 336 /usr/local/maldetect/tmp >> /dev/null 2>&1
+/usr/sbin/tmpwatch 336 /usr/local/maldetect/sess >> /dev/null 2>&1
+/usr/sbin/tmpwatch 336 /usr/local/maldetect/quarantine >> /dev/null 2>&1
+/usr/sbin/tmpwatch 336 /usr/local/maldetect/pub/*/ >> /dev/null 2>&1
+
+## Update scanning engines
+# Update clamav engine
+/usr/bin/yum -y -q -e 0 update clamav* >> $LOGFILE 2>&1 
+
+# check for new release version
+/usr/local/maldetect/maldet -d >> $LOGFILE 2>&1
+
+## Update virus and malware signatures
+# Update clamav database
+/usr/bin/freshclam --no-warnings --stdout >> $LOGFILE 2>&1
+
+# check for new definition set
+/usr/local/maldetect/maldet -u >> $LOGFILE 2>&1
+
+# Run Virus scan (Emails any findings)
+nice -n 2 /usr/local/maldetect/maldet $TARGETS >> $LOGFILE 2>&1
+
+# Print summary ( even when no malware is found ).
+LAST_SCAN=$(/usr/local/maldetect/maldet --report list | grep "SCAN  ID" | head -n 1 | awk '{ print $8 }')
+EDITOR=/bin/cat /usr/local/maldetect/maldet --report $LAST_SCAN 2>&1 | tee $LOGFILE

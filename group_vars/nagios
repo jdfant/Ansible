@@ -1,0 +1,22 @@
+---
+nagios_install_rpm_packages:
+  - nagios-common
+  - nagios-plugins
+  - nagios-plugins-users
+  - nagios-plugins-swap
+  - nagios-plugins-procs
+  - nagios-plugins-ping
+  - nagios-plugins-load
+  - nagios-plugins-file_age
+  - nagios-plugins-disk
+  - nagios-plugins-log
+
+nagios_id: nagios
+nagios_version: '2.3.3'
+nagios_home: /usr/local/nagios
+nagios_shell: /bin/bash
+nagios_authorized_keys: '{{ nagios_home }}/.ssh/authorized_keys'
+nagios_plugins_dir: /usr/lib64/nagios/plugins
+nagios_special_plugins_dir: /usr/local/nagios/plugins
+nagios_special_plugins_url: http://www.nagios-plugins.org/download/nagios-plugins-{{ nagios_version }}.tar.gz
+nagios_libexec_symlink: /usr/local/nagios/libexec

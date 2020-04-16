@@ -1,0 +1,49 @@
+---
+alternatives_java_path: /etc/alternatives/java
+alternatives_java_link: /usr/bin/java
+
+activiti_remove_rpm_packages:
+  - jdk1*
+
+activiti_install_rpm_packages:
+  - https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+  - postgresql12
+  - postgresql12-server
+  - java-1.8.0-openjdk-headless
+
+activiti_firewall_ports:
+  - 8080/tcp
+  - 8443/tcp
+
+activiti_user: activiti
+activiti_group: activiti
+activiti_uid: "702"
+activiti_gid: "702"
+activiti_systemd_user: '{{ activiti_user }}'
+activiti_home: /usr/local/activiti
+activiti_logs: /var/log/activiti
+activiti_shell: /sbin/nologin
+activiti_pki: /etc/pki/activiti
+activiti_startup: '{{ tomcat_home }}/bin/startup.sh'
+
+postgis_jar: https://repo1.maven.org/maven2/net/postgis/postgis-jdbc/2.4.0/postgis-jdbc-2.4.0.jar
+postgresql_jar: https://repo1.maven.org/maven2/org/postgresql/postgresql/42.2.11/postgresql-42.2.11.jar
+
+tomcat_version: 9.0.33
+tomcat_archive: https://mirror.olnevhost.net/pub/apache/tomcat/tomcat-9/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz
+tomcat_home: /usr/local/activiti/apache-tomcat-{{ tomcat_version }}
+tomcat_logs: '{{ tomcat_home }}/logs'
+
+tomcat_manager_pw: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          33643033333565663965303766343265663139393432653262383431393562396361343531306533
+          6563656433373938343238323931376438613538643065320a343433646137396538393632373431
+          30343533336138303837663031386135356436343261316561663833343337306262633435366230
+          6665646563353132370a333661313063646264333262613666316538613263633264386238336536
+          30303031306530313435383533666137663034656532643965653862633936386566396636666664
+          3835653162303436386562336431646335316664386564636565
+
+catalina_home: '{{ tomcat_home }}'
+
+java_opts: -XX:MinHeapFreeRatio=40 -XX:MaxHeapFreeRatio=70 -XX:+UseG1GC -Xmx16384M -server -Djava.awt.headless=true
+java_home: /etc/alternatives/jre

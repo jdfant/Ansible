@@ -1,0 +1,13 @@
+[Unit]
+Description=JDs webdocs NFS mount service
+After=network.target
+
+[Mount]
+What={{ webdocs['nfs_server'] }}:{{ webdocs['nfs_share'] }}
+Where={{ webdocs['mount_point'] }}
+Type=nfs4
+Options={{ webdocs['nfs_options'] }}
+TimeoutSec=60
+
+[Install]
+WantedBy=multi-user.target

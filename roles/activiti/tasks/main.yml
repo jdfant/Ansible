@@ -1,0 +1,293 @@
+---
+####################################################################
+#
+# The use of LDAP AND local system accounts creates duplicate users 
+# and groups. This can get confusing.
+#
+# Not pretty, but here's how to make it all work ..................
+#
+####################################################################
+
+# Create local systems accounts if they do not exist.
+- name: Register if '{{ activiti_group }}' local group exists
+  command: /usr/bin/grep '{{ activiti_group }}' /etc/group
+  register: local_activiti_group_exists
+  ignore_errors: true
+
+- name: Register if '{{ activiti_user }}' local user exists
+  command: /usr/bin/grep '{{ activiti_user }}' /etc/passwd
+  register: local_activiti_user_exists
+  ignore_errors: true
+
+- name: Ensure group '{{ activiti_group }}' exists
+  command: /usr/sbin/lgroupadd -g '{{ activiti_gid }}' '{{ activiti_group }}'
+  when: local_activiti_group_exists is failed
+
+- name: Ensure user '{{ activiti_user }}' exists
+  command: /usr/sbin/luseradd -d '{{ activiti_home }}' -s '{{ activiti_shell }}' -u '{{ activiti_uid }}' -g '{{ activiti_gid }}' '{{ activiti_user }}'
+  when: local_activiti_user_exists is failed
+
+- name: Verify correct RPMs are uninstalled
+  yum:
+    name: '{{ item }}'
+    state: absent
+  loop: '{{ activiti_remove_rpm_packages }}'
+
+- name: Verify correct RPMs are installed
+  yum:
+    name: '{{ item }}'
+    state: present
+  loop: '{{ activiti_install_rpm_packages }}'
+
+- name: Correct java version selected
+  alternatives:
+    name: java
+    link: '{{ alternatives_java_link }}'
+    path: '{{ alternatives_java_path }}'
+  ignore_errors: true
+
+- name: Push and enable activiti.service unit
+  template:
+    src: etc/systemd/system/activiti.service.j2
+    dest: /etc/systemd/system/activiti.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: enable_activiti
+
+- name: Create/Ensure activiti home dir
+  file:
+    path: '{{ activiti_home }}'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0770'
+    state: directory
+
+- name: Create/Ensure tomcat home dir
+  file:
+    path: '{{ tomcat_home }}'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0550'
+    state: directory
+
+- name: Register tomcat installed
+  command: grep '{{ tomcat_version }}' '{{ tomcat_home }}/RELEASE-NOTES'
+  register: tomcat_installed
+  ignore_errors: true
+
+- name: Unarchive tomcat to /usr/local/activiti
+  unarchive:
+    src: '{{ tomcat_archive }}'
+    dest: '{{ activiti_home }}'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    remote_src: yes
+  when: tomcat_installed is failed
+
+- name: Create/Ensure tomcat bin dir
+  file:
+    path: '{{ tomcat_home }}/bin'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0550'
+    state: directory
+    recurse: yes
+
+- name: Create/Ensure tomcat conf dir
+  file:
+    path: '{{ tomcat_home }}/conf'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '2570'
+    state: directory
+
+- name: Install postgresql jar
+  get_url:
+    url: '{{ postgresql_jar }}'
+    dest: '{{ tomcat_home }}/lib'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+
+- name: Install postgis-jdbc jar
+  get_url:
+    url: '{{ postgis_jar }}'
+    dest: '{{ tomcat_home }}/lib'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+
+- name: Create/Ensure tomcat lib dir
+  file:
+    path: '{{ tomcat_home }}/lib'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '2570'
+    state: directory
+    recurse: yes
+
+- name: Create/Ensure tomcat temp dir
+  file:
+    path: '{{ tomcat_home }}/temp'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '2770'
+    state: directory
+    recurse: yes
+
+- name: Create/Ensure tomcat webapps dir
+  file:
+    path: '{{ tomcat_home }}/webapps'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '2770'
+    state: directory
+    recurse: yes
+
+- name: Create/Ensure tomcat work dir
+  file:
+    path: '{{ tomcat_home }}/work'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '2770'
+    state: directory
+    recurse: yes
+
+- name: Create/Ensure tomcat Catalina dir
+  file:
+    path: '{{ tomcat_home }}/conf/Catalina'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0570'
+    state: directory
+
+- name: Create/Ensure tomcat localhost dir
+  file:
+    path: '{{ tomcat_home }}/conf/Catalina/localhost'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '2570'
+    state: directory
+
+- name: Register log symlink
+  command: readlink '{{ tomcat_logs }}'
+  register: log_symlink
+  ignore_errors: true
+
+- name: Remove tomcat logs dir in order to symlink
+  file:
+    path: '{{ tomcat_logs }}'
+    state: absent
+  when: log_symlink is failed
+  ignore_errors: true
+
+- name: Create/Ensure tomcat logs dir
+  file:
+    path: '{{ activiti_logs }}'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '2370'
+    state: directory
+    recurse: yes
+
+- name: Symlink activiti logs to tomcat
+  file:
+    src: '{{ activiti_logs }}'
+    dest: '{{ tomcat_logs }}'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    state: link
+
+- name: Create/Ensure '{{ activiti_pki }}' dir
+  file:
+    path: '{{ activiti_pki }}'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0700'
+    state: directory
+
+- name: Push Activiti certificateKeyFile
+  copy:
+    src: '{{ activiti_certificateKeyFile_location }}'
+    dest: '{{ activiti_certificateKeyFile }}'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0600'
+
+- name: Push Activiti certificateFile
+  copy:
+    src: '{{ activiti_certificateFile_location }}'
+    dest: '{{ activiti_certificateFile }}'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0600'
+
+- name: Push Activiti chain.pem
+  copy:
+    src: '{{ activiti_chain_pem_location }}'
+    dest: '{{ activiti_chain_pem }}'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0600'
+
+- name: Push Activiti context.xml.default
+  copy:
+    src: '{{ context_xml_default }}'
+    dest: '{{ tomcat_home }}/conf/Catalina/localhost/context.xml.default'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0644'
+
+- name: Push server.xml
+  template:
+    src: tomcat_files/server.xml.j2
+    dest: '{{ tomcat_home }}/conf/server.xml'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0460'
+
+- name: Push web.xml
+  template:
+    src: tomcat_files/web.xml.j2
+    dest: '{{ tomcat_home }}/conf/web.xml'
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0460'
+
+- name: Push tomcat-manager-users.xml
+  template:
+    src: tomcat_files/tomcat-manager-users.xml.j2
+    dest: /etc/tomcat-manager-users.xml
+    owner: '{{ activiti_user }}'
+    group: '{{ activiti_group }}'
+    mode: '0440'
+
+- name: Configure FirewallD
+  firewalld:
+    zone: public
+    port: '{{ item }}'
+    state: enabled
+  loop: '{{ activiti_firewall_ports }}'
+
+- name:  Ensuring all handlers have been executed
+  meta: flush_handlers
+
+- name: Push sudoers file
+  copy:
+    src: etc/sudoers
+    dest: /etc/sudoers
+    owner: root
+    group: root
+    mode: '0600'
+    validate: visudo -cf %s
+
+- name: Push sshd_config file
+  copy:
+    src: etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Reboot server
+  reboot:
+  tags: reboot

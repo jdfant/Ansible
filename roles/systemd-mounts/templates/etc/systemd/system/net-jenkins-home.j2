@@ -1,0 +1,13 @@
+[Unit]
+Description=Jenkins NFS mount service
+After=network.target
+
+[Mount]
+What={{ net_jenkins_home['nfs_server'] }}:{{ net_jenkins_home['nfs_share'] }}
+Where={{ net_jenkins_home['mount_point'] }}
+Type=nfs4
+Options={{ net_jenkins_home['nfs_options'] }}
+TimeoutSec=60
+
+[Install]
+WantedBy=multi-user.target

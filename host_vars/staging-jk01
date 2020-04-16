@@ -1,0 +1,45 @@
+---
+# Used for systemd-mount units
+net_home:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/net/home'
+  mount_point: '/net/home'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,tcp,hard,nodev,nosuid'
+
+net_sechome:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/export/secHome'
+  mount_point: '/net/sechome'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,tcp,hard,nodev,nosuid'
+  
+net_jenkins_home:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/export/jenkins'
+  mount_point: '/net/jenkins/home'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,tcp,hard,nodev,nosuid'
+
+usr_local_webapps:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/export/webapps/tomcat'
+  mount_point: '/usr/local/webapps'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,tcp,hard,nodev,nosuid'
+
+nfs_mountpoint:
+  - /net/home
+  - /net/sechome
+  - /usr/local/webapps
+  - /net/jenkins/home
+
+# For reverting
+systemd_mount_unit:
+  - net-home.mount
+  - net-sechome.mount
+  - usr-local-webapps.mount
+  - net-jenkins-home.mount
+
+# For reverting
+nfs_mountpoint_2_remove:
+  - /net/home
+  - /net/sechome
+  - /usr/local/webapps
+  - /net/jenkins/home

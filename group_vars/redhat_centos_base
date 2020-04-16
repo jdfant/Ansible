@@ -1,0 +1,174 @@
+---
+# Necessary Directories
+create_dirs:
+  - /etc/openldap
+  - /etc/pki/ca-trust/source/anchors
+  - /etc/postfix
+  - /etc/opt/BESClient
+
+# Packages
+rhel7_base_package_install:
+  - https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+  - http://software.bigfix.com/download/bes/95/BESAgent-9.5.5.196-rhe7.ppc64le.rpm
+  - cyrus-sasl-gssapi
+  - libXp
+  - m2crypto
+  - mailx
+  - nfs-utils
+  - chrony
+  - oddjob-mkhomedir
+  - oddjob
+  - openldap-clients
+  - openssh-clients
+  - pam_krb5
+  - pcsc-lite
+  - pciutils
+  - policycoreutils-python
+  - postfix
+  - rsync
+  - sysstat
+  - wget
+
+rhel7_base_package_remove:
+  - abrt
+  - cfengine
+  - ntp
+  - sendmail
+
+centos_base_package_install:
+  - http://software.bigfix.com/download/bes/95/BESAgent-9.5.5.196-rhe6.x86_64.rpm
+  - epel-release
+  - cyrus-sasl-gssapi
+  - libXp
+  - m2crypto
+  - mailx
+  - nfs-utils
+  - chrony
+  - oddjob-mkhomedir
+  - oddjob
+  - openldap-clients
+  - openssh-clients
+  - pam_krb5
+  - pcsc-lite
+  - pciutils
+  - policycoreutils-python
+  - postfix
+  - rsync
+  - sysstat
+  - wget
+
+# Mode 600 files
+rhel7_gp1_files:
+  - etc/login.defs
+  - etc/securetty
+  - etc/modprobe.d/CIS.conf
+  - etc/modprobe.d/cve-2017-2636.conf
+  - etc/crontab
+  - etc/ssh/sshd_config
+#  - /etc/sssd/sssd.conf
+
+# Mode 644
+rhel7_gp2_files:
+  - etc/issue
+  - etc/libuser.conf
+  - etc/logrotate.conf
+  - etc/rsyslog.conf
+  - etc/chrony.conf
+  - etc/profile
+  - etc/bashrc
+  - etc/csh.cshrc
+  - etc/openldap/ldap.conf
+  - etc/opt/BESClient/actionsite.afxm
+#  - etc/pam.d/su
+  - etc/ssh/ssh_config
+  - etc/sysconfig/init
+
+# Mode 700 files
+rhel7_gp3_files:
+  - bin/fix-solr-perms
+  - bin/scat
+  - bin/stail
+
+# Mode 755 files
+rhel7_gp4_files:
+  - etc/profile.d/autologout.sh
+  - etc/profile.d/autologout.csh
+
+# Files to enforce RHEL STIGS set 1
+rhel_stig_fileset1:
+  - /etc/cron.d
+  - /etc/cron.hourly
+  - /etc/cron.daily
+  - /etc/cron.weekly
+  - /etc/cron.monthly
+
+# Sudoers (/etc/sudoers)
+sudoers: etc/sudoers
+
+# Yum repostitories to disable
+rhel_disable_yum_repos:
+  - rhel-rs-for-rhel-7-server-eus-rpms
+  - rhel-ha-for-rhel-7-server-eus-rpms
+  - rhel-rs-for-rhel-7-server-rpms
+  - rhel-ha-for-rhel-7-server-rpms
+  - rhel-7-server-eus-rpms
+  - rhel-7-server-rt-rpms
+  - rhel-7-server-rt-beta-rpms
+  - rhel-sjis-for-rhel-7-server-eus-rpms
+  - rhel-sjis-for-rhel-7-server-eus-source-rpms
+  - rhel-sjis-for-rhel-7-server-eus-debug-rpms
+
+# Yum repostitories to enable
+rhel_enable_yum_repos:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
+  - rhel-7-server-optional-rpms
+  - rhel-7-server-rh-common-rpms
+
+# SeLinux restorecon list
+restorecon_files:
+  - /etc/audit/auditd.conf
+  - /etc/postfix/main.cf
+  - /etc/ssh/sshd_config
+  - /etc/sysctl.conf
+  - /etc/sudoers
+  - /etc/hosts
+
+# SeLinux Booleans
+sebools:
+  - daemons_dump_core
+  - antivirus_can_scan_system
+  - use_nfs_home_dirs
+
+certs_to_copy:
+  - ca2.crt
+
+epel_gpg_key_location: >-
+  https://getfedora.org/static/fedora.gpg
+
+# ansible-vault encrypted contents
+rh_subscription_user: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          30643037313465623662656435363032336438666563653937663562343136623139313530626566
+          64613433303263343265636437653061316237636435613462383762346264393739303662316434
+          36353162363131636562373632393439376661663632626331353964383062653465356537326461
+          6238343738333732320a386537333335306466376132303530386365363733376465356236326639
+          6463613337366132373033636164313133383539636636373633
+
+rh_subscription_pw: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          39363563363863366539623238636665613165626334326264313635633934646664353835373138
+          3836316630326230663338376261663938373338373933300a613737346432666164373538633137
+          64613433303263343265636437653061316237636435613462383762346264393739303662316434
+          66386334323163666436646432643066663036623962633865356437396166303839376534626435
+          6463613337366132373033636164313133383539636636373633
+
+root_pw: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          61386333653066326133333938333932303839343066346366303532323663393461653130386234
+          3533653766613230666533666537313163626164616431300a636537623066633132623562646238
+          66353939633635326432633337343131653063393336333063393866616466623834393262616637
+          64613433303263343265636437653061316237636435613462383762346264393739303662316434
+          32323831633934633061663839653739666235306462323637386238333332633864613165353930
+          37333166313163323836363930396134636539323939633339613634376633643961663463663539
+          6463613337366132373033636164313133383539636636373633

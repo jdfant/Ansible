@@ -1,0 +1,42 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: false
+  tasks:
+
+    - name: Stopping all tomcats
+      systemd:
+        name: '{{ item }}'
+        state: stopped
+      loop: '{{ tomcat_services }}'
+      ignore_errors: true
+      tags: stop_tomcats
+
+    - name: Stopping core services
+      systemd:
+        name: '{{ item }}'
+        state: stopped
+      loop: '{{ core_services }}'
+      ignore_errors: true
+      tags: stop_services
+
+    - name: Stopping postgresql
+      systemd:
+        name: postgresql-9.6
+        state: stopped
+      ignore_errors: true
+      tags: stop_postgres
+
+    - name: Kill yum and Remove /var/run/yum.pid
+      shell: /usr/bin/pkill -9 -f yum && rm -f /var/run/yum.pid
+      ignore_errors: true
+
+    - name: Run updates
+      yum:
+        name: '*'
+        update_cache: yes
+        state: latest
+
+    - name: Reboot server
+      reboot:
+      tags: reboot

@@ -1,0 +1,10 @@
+{{ ansible_managed | comment }}
+
+DatabaseDirectory {{ clamupdate_home }}
+UpdateLogFile /var/log/freshclam.log
+LogTime yes
+LogSyslog yes
+PidFile /var/run/freshclam.pid
+DatabaseOwner {{ clamupdate_id }}
+DatabaseMirror db.US.clamav.net
+DatabaseMirror db.clamav.net

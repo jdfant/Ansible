@@ -1,0 +1,51 @@
+---
+- name: Verify nfs-utils is installed
+  yum:
+    name: '{{ item }}'
+    state: present
+  loop: '{{ nfs_rpm_packages }}'
+
+- name: Create NFS shared directories
+  file:
+    path: '{{ item }}'
+    state: directory
+    mode: '0755'
+  loop: '{{ create_nfs_dirs }}'
+
+- name: Configure nfs exports
+  template:
+    src: etc/exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: '0644'
+  notify: exportfs
+
+- name: Prevent NFS mounting of any v3 or less
+  systemd:
+    name: '{{ item }}'
+    state: stopped
+    masked: yes
+  loop: '{{ disabled_nfs_services }}'
+
+- name: Push /etc/sysconfig/nfs to server
+  template:
+    src: etc/sysconfig/nfs.j2
+    dest: /etc/sysconfig/nfs
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: reload nfs
+  systemd:
+    name: nfs
+    enabled: yes
+    state: reloaded
+
+- name: Configure FirewallD
+  firewalld:
+    service: nfs
+    permanent: yes
+    state: enabled
+  notify: restart firewalld
+  tags: firewall

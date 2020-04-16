@@ -1,0 +1,13 @@
+[Unit]
+Description=JDs net_home NFS mount service
+After=network.target
+
+[Mount]
+What={{ net_home['nfs_server'] }}:{{ net_home['nfs_share'] }}
+Where={{ net_home['mount_point'] }}
+Type=nfs4
+Options={{ net_home['nfs_options'] }}
+TimeoutSec=60
+
+[Install]
+WantedBy=multi-user.target

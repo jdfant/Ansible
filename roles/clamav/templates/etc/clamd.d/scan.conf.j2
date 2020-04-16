@@ -1,0 +1,16 @@
+{{ ansible_managed | comment }}
+
+LogFile /var/log/clamd.scan
+LogSyslog yes
+PidFile /var/run/clamd.scan/clamd.pid
+TemporaryDirectory /tmp
+DatabaseDirectory {{ clamupdate_home }}
+LocalSocket /var/run/clamd.scan/clamd.sock
+LocalSocketMode 660
+FixStaleSocket yes
+ExcludePath ^/var/lib/clamav
+ExcludePath ^/usr/local/maldetect/sigs
+ExcludePath ^/usr/share/clamav
+ExcludePath ^/var/log/clamd.scan
+User {{ clamscan_id }}
+AllowSupplementaryGroups yes

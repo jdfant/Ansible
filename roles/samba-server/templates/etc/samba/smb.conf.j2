@@ -1,0 +1,83 @@
+[global]
+    realm = DOMAIN.LAN
+    workgroup = LAN
+    security = ADS
+    kerberos method = system keytab
+    netbios name = dvst01
+    netbios aliases = repo
+    server signing = mandatory
+    client signing = mandatory
+    client min protocol = SMB2
+    load printers = no
+    printcap name = /dev/null
+
+[homes]
+    browseable = no
+    writable = yes
+    case sensitive = yes
+    default case = lower
+    preserve case = no
+    locking = off
+
+[gis_share]
+    path = /export/gis_share
+    writeable = yes
+    valid users = @gis,@developers
+    write list = @gis
+    directory mask  = 2775
+    create mask  = 0775
+
+[webdocs]
+    path = /export/webdocs/
+    writeable = yes
+    valid users = @atas,@gis,@developers
+    write list = @developers,@gis,@developers
+    directory mask  = 2775
+    create mask  = 0775
+
+[secure_webdocs]
+    path = /export/secure_webdocs
+    writeable = yes
+    valid users = @developers
+    write list = @developers
+    directory mask  = 2775
+    create mask  = 0775
+
+[pg-backups]
+    path = /export/pg_backup
+    writeable = no
+    valid users = @developers
+    directory mask  = 2555
+    create mask  = 0444
+
+[software]
+    path = /export/data3/repositories/software
+    writeable = yes
+    valid users = @gis,@developers
+    write list = @developers
+    directory mask  = 2775
+    create mask  = 0775
+
+[gis-software]
+    path = /export/data3/repositories/software/GIS
+    writeable = yes
+    valid users = @atas,@developers,@gis
+    write list = @developers,@gis
+    directory mask  = 2775
+    create mask  = 0775
+
+[systems]
+    path = /export/data3/repositories/systems
+    writeable = yes
+    valid users = @developers
+    write list = @developers
+    directory mask  = 2775
+    create mask  = 0775
+
+[securitydocs]
+    path = /export/data3/repositories/securitydocs
+    writeable = yes
+    valid users = @developers,@developers
+    write list = @developers
+    directory mask  = 2775
+    create mask  = 0775

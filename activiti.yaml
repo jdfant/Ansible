@@ -1,0 +1,7 @@
+---
+- name: activiti playbook
+  hosts: all
+  become: yes
+  gather_facts: false
+  roles:
+     - activiti

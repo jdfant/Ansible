@@ -1,0 +1,10 @@
+---
+- name: exportfs
+  command: exportfs -av
+
+- name: restart firewalld
+  systemd:
+    name: firewalld
+    daemon_reload: yes
+    state: reloaded
+    enabled: yes

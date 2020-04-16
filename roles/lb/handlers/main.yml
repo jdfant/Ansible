@@ -1,0 +1,6 @@
+---
+- name: iptables-save
+  shell: 'iptables-save | tee /etc/sysconfig/iptables'
+
+- name: iptables-restore
+  shell: 'iptables-restore < /etc/sysconfig/iptables'

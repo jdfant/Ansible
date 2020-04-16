@@ -1,0 +1,49 @@
+{{ ansible_managed | comment }}
+
+#!/bin/bash
+
+ADDRS="email_address"
+LOGFILE="/var/log/clamav/clamdscan.log"
+
+if [ ! -d /var/log/clamav ] ; then
+    mkdir /var/log/clamav
+    chgrp clamupdate /var/log/clamav
+    chmod g+rwx /var/log/clamav
+fi
+
+echo -e "\n\n" >> $LOGFILE
+echo "$(date) +++ START clamdscan" >> $LOGFILE
+
+TARGETS="./"
+if [[ $# -gt 0 ]] ; then
+    TARGETS=""
+    for t in $* ; do
+        if [ ! -e $t ] ; then
+            $LOGGER "$t does not exist."
+        else
+            TARGETS="$TARGETS $t"
+        fi
+    done
+fi
+
+echo "$(date) TARGETS: $TARGETS" >> $LOGFILE
+
+if [ ! -d /var/lib/clamav/quarantine ] ; then
+    mkdir -p /var/lib/clamav/quarantine
+    chgrp clamupdate /var/lib/clamav
+    chmod 770 /var/lib/clamav
+    chmod 700 /var/lib/clamav/quarantine
+fi
+
+# Update clamav engine
+#/usr/bin/yum -y -q -e 0 update clamav* 2>&1 >> /var/log/clamav/clamav_update.log
+
+# Update clamav database
+#/usr/bin/freshclam -l /var/log/clamdb_update.log
+
+# Run Virus scan and email any findings
+# nice -n 2 /usr/bin/clamdscan --move=/var/lib/clamav/quarantine --log=$LOGFILE -i $TARGETS
+nice -n 2 /usr/bin/clamdscan --log=$LOGFILE -i $TARGETS
+
+echo
+echo "$(date) +++ END clamdscan" >> $LOGFILE

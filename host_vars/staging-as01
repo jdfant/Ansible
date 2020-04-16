@@ -1,0 +1,69 @@
+---
+# For Activiti
+activiti_certificateKeyFile: /etc/pki/activiti/staging-as01.key
+activiti_certificateFile: /etc/pki/activiti/staging-as01.crt
+activiti_chain_pem: /etc/pki/activiti/chain.pem
+
+activiti_certificateKeyFile_location: staging-as01.key
+activiti_certificateFile_location: staging-as01.crt
+activiti_chain_pem_location: chain.pem
+
+server_xml_certificateKeyFile: /etc/pki/activiti/staging-as01.key
+server_xml_certificateFile: /etc/pki/activiti/staging-as01.crt
+server_xml_chain_pem: /etc/pki/activiti/chain.pem
+
+context.xml.default: context.xml.default_staging
+
+# Used for systemd-mount units
+net_home:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/net/home'
+  mount_point: '/net/home'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,tcp,hard,nodev,nosuid'
+
+net_sechome:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/export/secHome'
+  mount_point: '/net/sechome'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,tcp,hard,nodev,nosuid'
+
+webapps:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/export/staging_webapps'
+  mount_point: '/mnt/webapps'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,nodev,nosuid'
+
+webdocs:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/export/staging_webdocs'
+  mount_point: '/mnt/webdocs'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,nodev,nosuid'
+
+secure_webdocs:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/export/staging_secure_webdocs'
+  mount_point: '/mnt/secure/webdocs'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,nodev,nosuid'
+
+nfs_mountpoint:
+  - /mnt/webapps
+  - /mnt/webdocs
+  - /mnt/secure/webdocs
+  - /net/home
+  - /net/sechome
+
+# For reverting
+systemd_mount_unit:
+  - mnt-webapps.mount
+  - mnt-webdocs.mount
+  - mnt-secure-webdocs.mount
+  - net-home.mount
+  - net-sechome.mount
+
+# For reverting
+nfs_mountpoint_2_remove:
+  - /mnt/webapps
+  - /mnt/webdocs
+  - /mnt/secure/webdocs
+  - /net/home
+  - /net/sechome

@@ -1,0 +1,13 @@
+[Unit]
+Description=JDs nagios_graph NFS mount service
+After=network.target
+
+[Mount]
+What={{ nagios_graph['nfs_server'] }}:{{ nagios_graph['nfs_share'] }}
+Where={{ nagios_graph['mount_point'] }}
+Type=nfs4
+Options={{ nagios_graph['nfs_options'] }}
+TimeoutSec=60
+
+[Install]
+WantedBy=multi-user.target

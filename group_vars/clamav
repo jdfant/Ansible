@@ -1,0 +1,31 @@
+---
+clamav_install_rpm_packages:
+  - clamav
+  - clamav-lib
+  - clamav-data-empty
+  - clamav-update
+  - clamav-filesystem
+  - clamav-scanner
+  - clamav-scanner-systemd
+  - clamav-server
+  - clamav-server-systemd
+  - clamav-unofficial-sigs
+
+clamscan_id: clamscan
+clamscan_groups: clamupdate
+clamscan_home: /
+clamscan_shell: /sbin/nologin
+clamscan_comment: Clamav scanner user
+
+clamupdate_id: clamupdate
+clamupdate_home: /var/lib/clamav
+clamupdate_shell: /sbin/nologin
+clamupdate_comment: Clamav database update user
+
+clamav_crons_dir: /usr/local/crons/scripts
+clamav_clam_d_dir: /etc/clamd.d
+
+clamav_sebools: antivirus_can_scan_system
+
+maldetect_url: http://www.rfxn.com/downloads/maldetect-current.tar.gz
+maldetect_dir: /usr/local/maldetect

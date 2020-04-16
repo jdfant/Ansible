@@ -1,0 +1,32 @@
+---
+
+# ADD REGISTER TO CHECK /proc FOR NFS MOUNTS BEFORE 'chattr -i'
+
+- name: Stop and disable NFS systemd-mount units
+  systemd:
+    name: '{{ item }}'
+    state: stopped
+    enabled: no
+  loop: '{{ systemd_mount_unit }}'
+
+- name: Remove Immutable bit on NFS mount points
+  file:
+    path: '{{ item }}'
+    state: directory
+    attributes: '-i'
+  ignore_errors: true
+  loop: '{{ nfs_mountpoint }}'
+
+- name: Remove NFS client mount points
+  file:
+    path: '{{ item }}'
+    state: absent
+  ignore_errors: true
+  loop: '{{ nfs_mountpoint_2_remove }}'
+
+- name: Remove NFS systemd-mount units
+  file:
+    path: '/etc/systemd/system/{{ item }}'
+    state: absent
+  ignore_errors: true
+  loop: '{{ systemd_mount_unit }}'

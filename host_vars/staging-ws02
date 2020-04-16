@@ -1,0 +1,27 @@
+---
+# Used for systemd-mount units
+net_home:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/net/home'
+  mount_point: '/net/home'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,tcp,hard,nodev,nosuid'
+
+webdocs:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/export/staging_webdocs'
+  mount_point: '/mnt/webdocs'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,nodev,nosuid'
+
+# For reverting
+systemd_mount_unit:
+  - net-home.mount
+  - mnt-webdocs.mount
+
+# For reverting
+nfs_mountpoint_2_remove:
+  - /net/home
+  - /mnt/webdocs
+
+nfs_mountpoint:
+  - /net/home
+  - /mnt/webdocs

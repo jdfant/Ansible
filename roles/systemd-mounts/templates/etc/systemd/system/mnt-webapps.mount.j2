@@ -1,0 +1,13 @@
+[Unit]
+Description=JDs webapps NFS mount service
+After=network.target
+
+[Mount]
+What={{ webapps['nfs_server'] }}:{{ webapps['nfs_share'] }}
+Where={{ webapps['mount_point'] }}
+Type=nfs4
+Options={{ webapps['nfs_options'] }}
+TimeoutSec=60
+
+[Install]
+WantedBy=multi-user.target

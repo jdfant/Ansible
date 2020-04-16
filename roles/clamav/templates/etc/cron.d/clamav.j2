@@ -1,0 +1,3 @@
+{{ ansible_managed | comment }}
+
+0 20 * * * root {{ clamav_crons_dir }}/clamav 2>&1 | mail -s "$HOSTNAME -- Virus Scan" email_address

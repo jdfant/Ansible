@@ -1,0 +1,101 @@
+# Only set for a single environment. Add logic for various environments.
+rancher:
+  vip: 10.10.10.100
+  container_port: 8443
+  balance_type: source
+  option1: allbackups
+  option2:
+  option3:
+
+pdfreactor10:
+  vip: 10.10.10.101
+  container_port: 80
+  balance_type: source
+  option1: |
+    httpchk HEAD /
+            http-check expect status 200
+  option2:
+  option3:
+
+postgres:
+  vip: 10.10.10.102
+  container_port: 5432
+  balance_type: roundrobin
+  option1: pgsql-check user postgres
+  option2: allbackups
+  option3:
+
+iptables_ports:
+  - '80'
+  - '443'
+  - '5000'
+  - '5432'
+  - '8443'
+  - '9000'
+
+lb_details:
+  - { name: rancher, protocol: tcp, container_port: "{{ rancher['container_port'] }}", vip: "{{ rancher['vip'] }}", balance_type: "{{ rancher['balance_type'] }}", option1: "{{ rancher['option1'] }}", option2: "{{ rancher['option2'] }}", option3: "{{ rancher['option3'] }}"}
+  - { name: pdfreactor10, protocol: tcp, container_port: "{{ pdfreactor10['container_port'] }}", vip: "{{ pdfreactor10['vip'] }}", balance_type: "{{ pdfreactor10['balance_type'] }}", option1: "{{ pdfreactor10['option1'] }}", option2: "{{ pdfreactor10['option2'] }}", option3: "{{ pdfreactor10['option3'] }}" }
+  - { name: postgres-sparx, protocol: tcp, container_port: "{{ postgres['container_port'] }}", vip: "{{ postgres['vip'] }}", balance_type: "{{ postgres['balance_type'] }}", option1: "{{ postgres['option1'] }}", option2: "{{ postgres['option2'] }}", option3: "{{ postgres['option3'] }}" }
+
+
+# Inherit variables set from lb_details above? This is messy having to repeat the above.
+lb_defs:
+# Rancher "Masters" (keep these at the top)
+  - { lb_def_name: rancher, lb_group: rancher, protocol: tcp, container_port: "{{ rancher['container_port'] }}", vip: "{{ rancher['vip'] }}", server: rke1, worker_ip: '{{ staging_rke1 }}', worker_port: 8443 }
+  - { lb_def_name: rancher, lb_group: rancher, protocol: tcp, container_port: "{{ rancher['container_port'] }}", vip: "{{ rancher['vip'] }}", server: rke2, worker_ip: '{{ staging_rke2 }}', worker_port: 8443 }
+  - { lb_def_name: rancher, lb_group: rancher, protocol: tcp, container_port: "{{ rancher['container_port'] }}", vip: "{{ rancher['vip'] }}", server: rke3, worker_ip: '{{ staging_rke3 }}', worker_port: 8443 }
+
+# This creates unique options & "server" entries, running on the worker nodes, looping within the blocks created above
+  - { lb_def_name: pdfreactor10, lb_group: pdfreactor10, protocol: tcp, container_port: "{{ pdfreactor10['container_port'] }}", server: worker1, worker_ip: '{{ staging_worker1 }}', worker_port: 30000 }
+  - { lb_def_name: pdfreactor10, lb_group: pdfreactor10, protocol: tcp, container_port: "{{ pdfreactor10['container_port'] }}", server: worker2, worker_ip: '{{ staging_worker2 }}', worker_port: 30000 }
+  - { lb_def_name: pdfreactor10, lb_group: pdfreactor10, protocol: tcp, container_port: "{{ pdfreactor10['container_port'] }}", server: worker3, worker_ip: '{{ staging_worker3 }}', worker_port: 30000 }
+  - { lb_def_name: pdfreactor10, lb_group: pdfreactor10, protocol: tcp, container_port: "{{ pdfreactor10['container_port'] }}", server: worker4, worker_ip: '{{ staging_worker4 }}', worker_port: 30000 }
+  - { lb_def_name: postgres, lb_group: postgres, protocol: tcp, container_port: "{{ postgres['container_port'] }}", server: worker1, worker_ip: '{{ staging_worker1 }}', worker_port: 30001 }
+  - { lb_def_name: postgres, lb_group: postgres, protocol: tcp, container_port: "{{ postgres['container_port'] }}", server: worker2, worker_ip: '{{ staging_worker2 }}', worker_port: 30001 }
+  - { lb_def_name: postgres, lb_group: postgres, protocol: tcp, container_port: "{{ postgres['container_port'] }}", server: worker3, worker_ip: '{{ staging_worker3 }}', worker_port: 30001 }
+  - { lb_def_name: postgres, lb_group: postgres, protocol: tcp, container_port: "{{ postgres['container_port'] }}", server: worker4, worker_ip: '{{ staging_worker4 }}', worker_port: 30001 }
+
+#
+# ==================================================
+# KNOW WHAT YOU'RE DOING IF EDITING BELOW THIS LINE
+# ==================================================
+#
+prod_rke1: 10.100.200.211
+prod_rke2: 10.100.200.212
+prod_rke3: 10.100.200.213
+prod_worker1: 10.100.200.214
+prod_worker2: 10.100.200.215
+prod_worker3: 10.100.200.216
+prod_worker4: 10.100.200.217
+
+staging_rke1: 10.10.10.211
+staging_rke2: 10.10.10.212
+staging_rke3: 10.10.10.213
+staging_worker1: 10.10.10.214
+staging_worker2: 10.10.10.215
+staging_worker3: 10.10.10.216
+staging_worker4: 10.10.10.217
+
+beta_rke1: 10.10.20.211
+beta_rke2: 10.10.20.212
+beta_rke3: 10.10.20.213
+beta_worker1: 10.10.20.214
+beta_worker2: 10.10.20.215
+beta_worker3: 10.10.20.216
+beta_worker4: 10.10.20.217
+
+haproxy_stats_pw: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          30393231613565386136303736323730316538343331643338373661333933303532393361326462
+          6635303364363965660a363736646262623062623030636430336437353766616162643535393266
+          38386363386632663830663232366661646136626233336337393934323237383265
+
+lb_packages:
+  - keepalived
+  - haproxy
+  - iptables-services
+
+remove_packages:
+  - firewalld
+  - firewalld-filesystem

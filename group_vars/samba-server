@@ -1,0 +1,6 @@
+---
+samba_rpm_packages:
+  - samba
+  - samba-client
+  - samba-winbind
+  - samba-python

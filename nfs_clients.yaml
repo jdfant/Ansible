@@ -1,0 +1,8 @@
+---
+- name: nfs clients playbook
+  hosts: all
+  become: yes
+  gather_facts: false
+  roles:
+    - nfs-clients
+    - systemd-mounts

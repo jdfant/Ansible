@@ -1,0 +1,36 @@
+---
+# Used for systemd-mount units
+net_home:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/net/home'
+  mount_point: '/net/home'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,tcp,hard,nodev,nosuid'
+
+pg_staging_log:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/export/pgstaging_log'
+  mount_point: '/net/pg/staging_log'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,nodev,nosuid'
+
+pg_staging_backup:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/export/pgstaging_backup'
+  mount_point: '/net/pg/staging_backup'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,nodev,nosuid'
+
+# For reverting
+systemd_mount_unit:
+  - net-home.mount
+  - net-pg-staging_log.mount
+  - net-pg-staging_backup.mount
+
+# For reverting
+nfs_mountpoint_2_remove:
+  - /net/home
+  - /net/pg/staging_log
+  - /net/pg/staging_backup
+
+nfs_mountpoint:
+  - /net/home
+  - /net/pg/staging_log
+  - /net/pg/staging_backup

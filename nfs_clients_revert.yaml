@@ -1,0 +1,7 @@
+---
+- name: nfs clients revert playbook
+  hosts: all
+  become: yes
+  gather_facts: false
+  roles:
+    - systemd-mounts-revert

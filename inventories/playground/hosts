@@ -1,0 +1,17 @@
+all:
+  children:
+    test1:
+      hosts:
+        x-srv01:
+    test2:
+      hosts:
+        x-srv02:
+    test3:
+      hosts:
+        x-srv03:
+    test4:
+      hosts:
+        x-srv04:
+    test5:
+      hosts:
+        x-srv05:

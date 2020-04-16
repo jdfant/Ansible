@@ -1,0 +1,41 @@
+---
+# Core Services
+core_services:
+  - httpd
+  - docker
+
+# All tomcate services
+tomcat_services:
+  - tomcat01
+  - tomcat02
+  - tomcat03
+
+# Used for systemd-mount units
+nfs_mountpoint:
+  - /net/home
+
+# Used for systemd-mount units
+net_home:
+  nfs_server: 'nfs_01'
+  nfs_share: '/export/home'
+  mount_point: '/net/home'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,tcp,nodev,nosuid'
+
+# For reverting
+systemd_mount_unit:
+  - net-home.mount
+
+# For reverting
+nfs_mountpoint_2_remove:
+  - /net/home
+
+# For Splunkforwarder
+splunk_id: splunk
+splunk_home: /opt/splunkforwarder
+splunk_shell: /sbin/nologin
+splunk_comment: Splunk Service
+splunk_logs: /var/log/splunk
+splunk_version: Splunk 8.0.2.1
+splunk_rpm_version: 8.0.2.1-c0bf0f679ce9
+splunk_install_rpm_packages:
+  - splunk/splunkforwarder-{{ splunk_rpm_version }}-linux-2.6-x86_64.rpm

@@ -1,0 +1,33 @@
+---
+# For Activiti
+activiti_certificateKeyFile: /etc/pki/activiti/prod-as01.key
+activiti_certificateFile: /etc/pki/activiti/prod-as01.crt
+activiti_chain_pem: /etc/pki/activiti/chain.pem
+
+activiti_certificateKeyFile_location: prod-as01.key
+activiti_certificateFile_location: prod-as01.crt
+activiti_chain_pem_location: chain.pem
+
+server_xml_certificateKeyFile: /etc/pki/activiti/prod-as01.key
+server_xml_certificateFile: /etc/pki/activiti/prod-as01.crt
+server_xml_chain_pem: /etc/pki/activiti/chain.pem
+
+context_xml_default: context.xml.default_prod
+
+# Used for systemd-mount units
+net_home:
+  nfs_server: 'prod-nas01'
+  nfs_share: '/export/home'
+  mount_point: '/net/home'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,tcp,hard,nodev,nosuid'
+
+# For reverting
+systemd_mount_unit:
+  - net-home.mount
+
+# For reverting
+nfs_mountpoint_2_remove:
+  - /net/home
+
+nfs_mountpoint:
+  - /net/home

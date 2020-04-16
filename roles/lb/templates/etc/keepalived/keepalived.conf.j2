@@ -1,0 +1,35 @@
+{{ ansible_managed | comment }}
+
+global_defs {
+   notification_email {
+     {{ keepalived['email_address'] }}
+}
+   notification_email_from {{ keepalived['system_id'] }}
+   smtp_server localhost
+   smtp_connect_timeout 30
+}
+   vrrp_script haproxy_check {
+   script "killall -0 haproxy"
+   interval 2
+   weight 2
+}
+   vrrp_instance {{ keepalived['vrrp_instance'] }} {
+   state MASTER
+   interface {{ keepalived['interface'] }}
+   virtual_router_id 51
+   priority {{ keepalived['priority'] }}
+   advert_int 1
+   authentication {
+     auth_type PASS
+     auth_pass {{ keepalived['auth_pass'] }}
+   }
+   virtual_ipaddress {
+     {{ keepalived['vip'] }} dev {{ keepalived['interface'] }}
+   }
+   virtual_ipaddress_excluded {
+       {{ keepalived['vip_pool'] }}
+   }
+   track_script {
+   haproxy_check
+   }
+}

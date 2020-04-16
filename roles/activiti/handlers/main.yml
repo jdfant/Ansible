@@ -1,0 +1,7 @@
+---
+- name: enable_activiti
+  systemd:
+    name: activiti
+    daemon_reload: yes
+    state: reloaded
+    enabled: yes

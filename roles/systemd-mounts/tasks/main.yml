@@ -1,0 +1,119 @@
+---
+- name: Create NFS client mount points
+  file:
+    path: '{{ item }}'
+    state: directory
+    mode: '0755'
+  ignore_errors: true
+  loop: '{{ nfs_mountpoint }}'
+
+- name: Set immutable attributes on NFS mount points
+  file:
+    path: '{{ item }}'
+    state: directory
+    attributes: '+i'
+  ignore_errors: true
+  loop: '{{ nfs_mountpoint }}'
+
+- name: Push net-home systemd mount unit
+  template:
+    src: etc/systemd/system/net-home.mount.j2
+    dest: /etc/systemd/system/net-home.mount
+    owner: root
+    group: root
+    mode: '0644'
+  ignore_errors: true
+  notify: enable net-home.mount
+
+- name: Push net-sechome systemd mount unit
+  template:
+    src: etc/systemd/system/net-sechome.mount.j2
+    dest: /etc/systemd/system/net-sechome.mount
+    owner: root
+    group: root
+    mode: '0644'
+  ignore_errors: true
+  notify: enable net-sechome.mount
+
+- name: Push net-pg-staging_log systemd mount unit
+  template:
+    src: etc/systemd/system/net-pg-staging_log.mount.j2
+    dest: /etc/systemd/system/net-pg-staging_log.mount
+    owner: root
+    group: root
+    mode: '0644'
+  ignore_errors: true
+  notify: enable net-pg-staging_log.mount
+
+- name: Push net-pg-staging_backup systemd mount unit
+  template:
+    src: etc/systemd/system/net-pg-staging_backup.mount.j2
+    dest: /etc/systemd/system/net-pg-staging_backup.mount
+    owner: root
+    group: root
+    mode: '0644'
+  ignore_errors: true
+  notify: enable net-pg-staging_backup.mount
+
+- name: Push mnt-secure-webdocs systemd mount unit
+  template:
+    src: etc/systemd/system/mnt-secure-webdocs.mount.j2
+    dest: /etc/systemd/system/mnt-secure-webdocs.mount
+    owner: root
+    group: root'
+    mode: '0644'
+  ignore_errors: true
+  notify: enable mnt-secure-webdocs.mount
+
+- name: Push mnt-webapps.mount systemd mount unit
+  template:
+    src: etc/systemd/system/mnt-webapps.mount.j2
+    dest: /etc/systemd/system/mnt-webapps.mount
+    owner: root
+    group: root
+    mode: '0644'
+  ignore_errors: true
+  notify: enable mnt-webapps.mount
+
+- name: Push mnt-webdocs systemd mount unit
+  template:
+    src: etc/systemd/system/mnt-webdocs.mount.j2
+    dest: /etc/systemd/system/mnt-webdocs.mount
+    owner: root
+    group: root
+    mode: '0644'
+  ignore_errors: true
+  notify: enable mnt-webdocs.mount
+
+- name: Push Jenkins systemd mount unit
+  template:
+    src: etc/systemd/system/net-jenkins-home.j2
+    dest: /etc/systemd/system/net-jenkins-home.mount
+    owner: root
+    group: root
+    mode: '0644'
+  ignore_errors: true
+  notify: enable net-jenkins-home.mount
+
+- name: Push usr-local-webapps systemd mount unit
+  template:
+    src: etc/systemd/system/usr-local-webapps.mount.j2
+    dest: /etc/systemd/system/usr-local-webapps.mount
+    owner: root
+    group: root
+    mode: '0644'
+  ignore_errors: true
+  notify: enable usr-local-webapps.mount
+
+- name: Push net-nagios-nagiosgraph systemd mount unit
+  template:
+    src: etc/systemd/system/net-nagios-nagiosgraph.mount.j2
+    dest: /etc/systemd/system/net-nagios-nagiosgraph.mount
+    owner: root
+    group: root
+    mode: '0644'
+  ignore_errors: true
+  notify: enable net-nagios-nagiosgraph.mount
+
+- name: Ensuring all handlers have been executed
+  meta: flush_handlers

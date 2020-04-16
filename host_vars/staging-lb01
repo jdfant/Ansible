@@ -1,0 +1,43 @@
+---
+keepalived:
+  email_address: jd@localhost
+  system_id: lb01
+  vrrp_instance: Prod_LB
+  interface: ens160
+  priority: 101
+  vip: 10.100.100.210
+  vip_pool: |
+     10.100.100.193
+            10.100.100.194
+            10.100.100.195
+            10.100.100.196
+            10.100.100.197
+            10.100.100.198
+            10.100.100.199
+            10.100.100.200
+  auth_pass: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          33306565623536353966653863646633363834633336633464343665646330363131626234333362
+          3163633163653834343132303864353966613362633030320a643066373761303961653936653834
+          35656530303062633030303864376638393633656562313135643231643035326632623637653430
+          3637653739366239350a613931626436343463353962623930616161613235356166383139663832
+          63323562333366613037383737663630383834663761363437343233333162616534323139366264
+          6636356264623138383539346138383439316264333165353633
+
+# Used for systemd-mount units
+net_home:
+  nfs_server: 'staging-nas01'
+  nfs_share: '/export/home'
+  mount_point: '/net/home'
+  nfs_options: 'rw,_netdev,auto,noatime,nofail,tcp,hard,nodev,nosuid'
+
+nfs_mountpoint:
+  - /net/home
+
+# For reverting
+systemd_mount_unit:
+  - net-home.mount
+
+# For reverting
+nfs_mountpoint_2_remove:
+  - /net/home

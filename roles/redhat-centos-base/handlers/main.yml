@@ -1,0 +1,38 @@
+---
+- name: yum clean
+  command: yum clean metadata
+
+- name: restart sshd
+  service:
+    name: sshd
+    enabled: true
+    state: restarted
+
+- name: restart postfix
+  service:
+    name: postfix
+    enabled: true
+    state: restarted
+
+- name: restart auditd
+  service:
+    name: auditd
+    enabled: true
+    state: restarted
+
+- name: restart rsyslog
+  service:
+    name: rsyslog
+    enabled: true
+    state: restarted
+
+- name: update ca-trust
+  command: /usr/bin/update-ca-trust
+
+- name: restorecon
+  command: '/usr/sbin/restorecon -iv {{ item }}'
+  loop: '{{ restorecon_files }}'
+
+- name: sebools
+  command: '/usr/sbin/setsebool -P {{ item }} on'
+  loop: '{{ sebools }}'

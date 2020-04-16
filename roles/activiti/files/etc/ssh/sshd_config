@@ -1,0 +1,23 @@
+Port 22
+Protocol 2
+Ciphers aes128-ctr,aes192-ctr,aes256-ctr
+SyslogFacility AUTHPRIV
+PermitRootLogin forced-commands-only
+MaxAuthTries 4
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+KerberosAuthentication yes
+KerberosOrLocalPasswd no
+KerberosTicketCleanup yes
+GSSAPIAuthentication yes
+GSSAPICleanupCredentials yes
+UsePAM yes
+AcceptEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES
+AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT
+AcceptEnv LC_IDENTIFICATION LC_ALL LANGUAGE
+AcceptEnv XMODIFIERS
+AllowGroups ansible nagios system-admins jenkins developers activiti-dev
+X11Forwarding yes
+UsePrivilegeSeparation yes
+Banner /etc/issue
+Subsystem   sftp    /usr/libexec/openssh/sftp-server

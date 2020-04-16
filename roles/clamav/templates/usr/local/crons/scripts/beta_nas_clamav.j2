@@ -1,0 +1,23 @@
+{{ ansible_managed | comment }}
+
+#!/bin/bash
+
+RESULTS=/tmp/clamscan.$$
+DATE=$(date)
+
+TARGETS="/bin /sbin /lib /usr/sbin /usr/bin /usr/lib /usr/libexec /tmp /var/tmp /data1/ /data4/"
+
+ADDRS="systems@email_address"
+CLAMAV_LOG="/var/log/clamav/clamscan-$(date +%d).log"
+
+# Run Virus scan and email any findings
+rm -f $CLAMAV_LOG
+nice -n 2 /usr/bin/clamscan --no-summary --move=/var/lib/clamav/quarantine --log=$CLAMAV_LOG -r -i $TARGETS >> $RESULTS
+
+if [ $? -eq 1 -a -f $RESULTS ]; then
+	cat $RESULTS | mail -s "Virus found on $HOSTNAME! $DATE" $ADDRS
+	cat $RESULTS | /usr/bin/logger -t 'vscan'
+	exit 0 
+fi
+
+rm $RESULTS

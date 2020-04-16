@@ -1,0 +1,16 @@
+---
+- name: redhat centos base playbook
+  hosts: all
+  become: yes
+  gather_facts: true
+
+# This is for the redhat_subscription input prompts:
+  vars_prompt:
+    - name: redhat_subscription_username
+      prompt: "Enter the Redhat Subscription Username"
+
+    - name: redhat_subscription_password
+      prompt: "Enter the Redhat Subscription Password"
+
+  roles:
+     - rhel7-base

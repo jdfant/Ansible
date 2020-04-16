@@ -1,0 +1,46 @@
+#Default Lines
+Defaults    requiretty,listpw=always,mail_no_perms,mail_no_host,timestamp_timeout=15,!tty_tickets
+Defaults    env_keep = "COLORS DISPLAY HOSTNAME HISTSIZE INPUTRC KDEDIR \
+                        LS_COLORS MAIL PS1 PS2 QTDIR USERNAME \
+                        LANG LC_ADDRESS LC_CTYPE LC_COLLATE LC_IDENTIFICATION \
+                        LC_MEASUREMENT LC_MESSAGES LC_MONETARY LC_NAME LC_NUMERIC \
+                        LC_PAPER LC_TELEPHONE LC_TIME LC_ALL LANGUAGE LINGUAS \
+                        _XKB_CHARSET XAUTHORITY"
+Defaults:ansible  !requiretty
+Defaults:jenkins  !requiretty
+Defaults:jenkins  env_keep += "DOCKER_HOST DOCKER_TLS_VERIFY"
+Defaults:nagios   syslog=auth,syslog_goodpri=info,!requiretty
+
+root                ALL=(ALL)   ALL
+%wheel              ALL=(ALL)   ALL
+%system-admins      ALL=(ALL)   NOPASSWD: ALL
+ansible             ALL = NOPASSWD: ALL
+nagios              ALL = NOPASSWD: /usr/local/nagios/plugins/check_passwd_group
+nagios              ALL = NOPASSWD: /usr/local/nagios/plugins/check_restricted_files
+nagios              ALL = NOPASSWD: /usr/local/nagios/plugins/check_uid_gid_files
+nagios              ALL = NOPASSWD: /usr/local/nagios/plugins/check_world_writeable
+nagios              ALL = NOPASSWD: /usr/local/nagios/plugins/check_valid_groups
+nagios              ALL = NOPASSWD: /usr/local/nagios/plugins/stigWorldWrite
+nagios              ALL = NOPASSWD: /usr/local/nagios/libexec/check_log *
+nagios              ALL = NOPASSWD: /usr/local/nagios/libexec/check_file_age *
+nagios              ALL=NOPASSWD: /usr/bin/ipmitool sdr type *
+nagios              ALL=NOPASSWD: /sbin/tune2fs -l *
+nagios              ALL=NOPASSWD: /sbin/smartctl *
+
+%activiti-dev       ALL = NOPASSWD: ACTIVITI
+jenkins             ALL = NOPASSWD: ACTIVITI
+
+Cmnd_Alias ACTIVITI = \
+    /usr/sbin/service activiti start, \
+    /usr/sbin/service activiti stop, \
+    /usr/sbin/service activiti restart, \
+    /usr/sbin/service activiti status, \
+    /usr/bin/systemctl start activiti, \
+    /usr/bin/systemctl stop activiti, \
+    /usr/bin/systemctl restart activiti, \
+    /usr/local/bin/cleantc activiti, \
+    /usr/bin/systemctl status activiti, \
+    /usr/bin/journalctl -xe -u activiti, \
+    /usr/bin/systemctl status postgresql-9.6, \
+    /usr/bin/systemctl start postgresql-9.6, \
+    /usr/bin/systemctl stop postgresql-9.6

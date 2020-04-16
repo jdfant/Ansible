@@ -1,0 +1,13 @@
+[Unit]
+Description=JDs pg_staging_archive NFS mount service
+After=network.target
+
+[Mount]
+What={{ pg_staging_archive['nfs_server'] }}:{{ pg_staging_archive['nfs_share'] }}
+Where={{ pg_staging_archive['mount_point'] }}
+Type=nfs4
+Options={{ pg_staging_archive['nfs_options'] }}
+TimeoutSec=60
+
+[Install]
+WantedBy=multi-user.target

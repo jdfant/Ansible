@@ -1,0 +1,11 @@
+---
+# For reverting
+systemd_mount_unit:
+  - net-home.mount
+
+# For reverting
+nfs_mountpoint_2_remove:
+  - /net/home
+
+nfs_mountpoint:
+  - /net/home

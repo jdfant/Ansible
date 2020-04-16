@@ -1,0 +1,13 @@
+[Unit]
+Description=JDs pg-beta_log NFS mount service
+After=network.target
+
+[Mount]
+What={{ pg_beta_log['nfs_server'] }}:{{ pg_beta_log['nfs_share'] }}
+Where={{ pg_beta_log['mount_point'] }}
+Type=nfs4
+Options={{ pg_beta_log['nfs_options'] }}
+TimeoutSec=60
+
+[Install]
+WantedBy=multi-user.target

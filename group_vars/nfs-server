@@ -1,0 +1,18 @@
+---
+# Created NFS Server Directories
+create_nfs_dirs:
+  - /export/data4
+  - /export/data1
+  - /export/data3
+  - /export/data2
+  - /net/home
+
+# Ensure NFS versions 2 and 3 are not used
+disabled_nfs_services:
+  - rpcbind.service
+  - rpcbind.socket
+  - rpc-statd.service
+
+# Necessary RPM packages
+nfs_rpm_packages:
+  - nfs-utils
