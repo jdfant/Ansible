@@ -1,0 +1,18 @@
+---
+- name: Clean Rancher Node
+  script: roles/rancher/files/clean_rancher.sh
+
+- name: Clean Rancher Node (again)
+  script: roles/rancher/files/clean_rancher.sh
+
+# 'Strange' that RancherOS will not reboot with standard reboot module.
+# Have to go the old school shell module way.
+- name: Reboot Node
+  shell: "sleep 5 && reboot"
+  async: 1
+  poll: 0
+
+- name: Wait for it ...........
+  wait_for_connection:
+    sleep: 5
+    delay: 60
