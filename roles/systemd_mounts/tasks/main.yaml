@@ -4,7 +4,7 @@
     path: '{{ item }}'
     state: directory
     mode: '0755'
-  ignore_errors: true
+  failed_when: false
   loop: '{{ nfs_mountpoint }}'
 
 - name: Set immutable attributes on NFS mount points
@@ -12,7 +12,7 @@
     path: '{{ item }}'
     state: directory
     attributes: '+i'
-  ignore_errors: true
+  failed_when: false
   loop: '{{ nfs_mountpoint }}'
 
 - name: Push net-home systemd mount unit
@@ -22,7 +22,7 @@
     owner: root
     group: root
     mode: '0644'
-  ignore_errors: true
+  failed_when: false
   notify: enable net-home.mount
 
 - name: Push net-sechome systemd mount unit
@@ -32,7 +32,7 @@
     owner: root
     group: root
     mode: '0644'
-  ignore_errors: true
+  failed_when: false
   notify: enable net-sechome.mount
 
 - name: Push net-pg-staging_log systemd mount unit
@@ -42,7 +42,7 @@
     owner: root
     group: root
     mode: '0644'
-  ignore_errors: true
+  failed_when: false
   notify: enable net-pg-staging_log.mount
 
 - name: Push net-pg-staging_backup systemd mount unit
@@ -52,7 +52,7 @@
     owner: root
     group: root
     mode: '0644'
-  ignore_errors: true
+  failed_when: false
   notify: enable net-pg-staging_backup.mount
 
 - name: Push mnt-secure-webdocs systemd mount unit
@@ -62,7 +62,7 @@
     owner: root
     group: root'
     mode: '0644'
-  ignore_errors: true
+  failed_when: false
   notify: enable mnt-secure-webdocs.mount
 
 - name: Push mnt-webapps.mount systemd mount unit
@@ -72,7 +72,7 @@
     owner: root
     group: root
     mode: '0644'
-  ignore_errors: true
+  failed_when: false
   notify: enable mnt-webapps.mount
 
 - name: Push mnt-webdocs systemd mount unit
@@ -82,7 +82,7 @@
     owner: root
     group: root
     mode: '0644'
-  ignore_errors: true
+  failed_when: false
   notify: enable mnt-webdocs.mount
 
 - name: Push Jenkins systemd mount unit
@@ -92,7 +92,7 @@
     owner: root
     group: root
     mode: '0644'
-  ignore_errors: true
+  failed_when: false
   notify: enable net-jenkins-home.mount
 
 - name: Push usr-local-webapps systemd mount unit
@@ -102,7 +102,7 @@
     owner: root
     group: root
     mode: '0644'
-  ignore_errors: true
+  failed_when: false
   notify: enable usr-local-webapps.mount
 
 - name: Push net-nagios-nagiosgraph systemd mount unit
@@ -112,7 +112,7 @@
     owner: root
     group: root
     mode: '0644'
-  ignore_errors: true
+  failed_when: false
   notify: enable net-nagios-nagiosgraph.mount
 
 - name: Ensuring all handlers have been executed

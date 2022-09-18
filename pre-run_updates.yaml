@@ -1,20 +1,23 @@
 ---
-- hosts: all
-  become: yes
+- name: Pre-run Updates
+  hosts: all
+  become: true
   gather_facts: false
   tasks:
 
-    - name: Kill yum and Remove /var/run/yum.pid
+    - name: Kill yum and Remove yum.pid
       shell: /usr/bin/pkill -9 -f yum && rm -f /var/run/yum.pid
-      ignore_errors: true
+      failed_when: false
+      changed_when: false
 
-    - name: Clean metadata
+    - name: Clean Metadata
       command: yum clean all
-      ignore_errors: true
+      failed_when: false
+      changed_when: false
 
-    - name: Run updates
+    - name: Run Updates
       yum:
         name: '*'
         download_only: true
-        update_cache: yes
+        update_cache: true
         state: latest

@@ -25,7 +25,7 @@
   systemd:
     name: '{{ item }}'
     state: stopped
-    masked: yes
+    masked: true
   loop: '{{ disabled_nfs_services }}'
 
 - name: Push /etc/sysconfig/nfs to server
@@ -36,16 +36,16 @@
     group: root
     mode: '0644'
 
-- name: reload nfs
+- name: Reload NFS
   systemd:
     name: nfs
-    enabled: yes
+    enabled: true
     state: reloaded
 
 - name: Configure FirewallD
   firewalld:
     service: nfs
-    permanent: yes
+    permanent: true
     state: enabled
   notify: restart firewalld
   tags: firewall

@@ -9,7 +9,7 @@
     name: '{{ item }}'
     state: stopped
   loop: '{{ tomcat_services }}'
-  ignore_errors: true
+  failed_when: false
   tags: stop_services
 
 - name: Stopping core services
@@ -17,21 +17,21 @@
     name: '{{ item }}'
     state: stopped
   loop: '{{ core_services }}'
-  ignore_errors: true
+  failed_when: false
   tags: stop_services
 
 - name: Stopping postgresql
   systemd:
     name: postgresql-9.6
     state: stopped
-  ignore_errors: true
+  failed_when: false
   tags: stop_services
 
 - name: Disable Autofs
   systemd:
     name: autofs
     state: stopped
-    enabled: no
+    enabled: false
 
 - name: Remove /etc/auto.master
   file:

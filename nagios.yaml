@@ -1,7 +1,7 @@
 ---
-- name: nagios playbook
+- name: Nagios Playbook
   hosts: all
-  become: yes
+  become: true
   gather_facts: false
   roles:
      - nagios

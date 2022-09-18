@@ -1,7 +1,7 @@
 ---
-- name: nfs server playbook
+- name: NFS Server Playbook
   hosts: all
-  become: yes
+  become: true
   gather_facts: false
   roles:
-     - nfs-server
+     - nfs_server

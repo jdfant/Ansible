@@ -2,9 +2,9 @@
 #
 # This playbook builds an entire system with Activiti
 #
-- name: activiti system playbook
+- name: Activiti System Playbook
   hosts: all
-  become: yes
+  become: true
   gather_facts: true
 
 # This is for the redhat_subscription input prompts:
@@ -16,10 +16,10 @@
       prompt: "Enter the Redhat Subscription Password"
 
   roles:
-     - redhat-centos-base
-     - nagios
-     - clamav
-     - splunk
-     - nfs-clients
-     - systemd-mounts
-     - activiti
+    - redhat_centos_base
+    - nagios
+    - clamav
+    - splunk
+    - nfs_clients
+    - systemd_mounts
+    - activiti

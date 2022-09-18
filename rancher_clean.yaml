@@ -1,14 +1,14 @@
 ---
 - name: Clean Rancher Nodes (Round 1)
   hosts: all
-  become: yes
+  become: true
   gather_facts: false
   roles:
     - { role: rancher, rancher_state: One }
 
 - name: Clean Rancher Nodes (Round 2)
   hosts: all
-  become: yes
+  become: true
   gather_facts: false
   roles:
     - { role: rancher, rancher_state: Two }

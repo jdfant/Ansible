@@ -3,7 +3,7 @@
   file:
     path: '{{ item }}'
     state: directory
-    mode: 0755
+    mode: '0755'
     owner: root
     group: root
   loop: '{{ create_dirs }}'
@@ -13,7 +13,7 @@
     state: present
     username: '{{ redhat_subscription_username }}'
     password: '{{ redhat_subscription_password }}'
-    force_register: yes
+    force_register: true
     auto_attach: true
   when: ansible_facts['distribution'] == "RedHat"
 
@@ -21,7 +21,7 @@
   yum:
     name: '{{ item }}'
     state: present
-    validate_certs: no
+    validate_certs: false
   loop: '{{ centos_base_package_install }}'
   when: ansible_facts['distribution'] == "CentOS"
 
@@ -134,7 +134,7 @@
     path: /root/.bash_profile
     regexp: '^#Color Coding -- 2010092801'
     line: '#Color Coding -- 2010092802'
-    backrefs: yes
+    backrefs: true
 
 - name: Remove readonly PS1 in /root/.bash_profile
   lineinfile:
@@ -151,7 +151,7 @@
   lineinfile:
     path: /etc/modprobe.d/cve-2017-2636.conf
     line: 'install n_hdlc /bin/true'
-    create: yes
+    create: true
 
 - name: Set the root password
   lineinfile:

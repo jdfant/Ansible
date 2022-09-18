@@ -2,9 +2,9 @@
 #
 # This playbook builds a base Redhat or CentOS system.
 #
-- name: redhat centos playbook
+- name: Redhat/Centos Playbook
   hosts: all
-  become: yes
+  become: true
   gather_facts: true
 
 # This is for the redhat_subscription input prompts:
@@ -16,9 +16,9 @@
       prompt: "Enter the Redhat Subscription Password"
 
   roles:
-     - redhat-centos-base
-     - nagios
-     - clamav
-     - splunk
-     - nfs-clients
-     - systemd-mounts
+    - redhat_centos_base
+    - nagios
+    - clamav
+    - splunk
+    - nfs_clients
+    - systemd_mounts

@@ -1,7 +1,7 @@
 ---
-- name: Load Balancer playbook
+- name: Load Balancer Playbook
   hosts: all
-  become: yes
+  become: true
   gather_facts: false
 
   roles:
