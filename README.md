@@ -1,6 +1,7 @@
-```
+'''
 |-- README.md
 |-- activiti.yaml
+|-- ansible.cfg
 |-- build_activiti_system.yaml
 |-- build_system.yaml
 |-- clamav.yaml
@@ -27,6 +28,7 @@
 |   `-- staging-ws02
 |-- inventories
 |   |-- playground
+|   |   |-- home.hosts
 |   |   |-- hosts
 |   |   `-- lb_test
 |   |-- production
@@ -43,6 +45,7 @@
 |-- nfs_clients_revert.yaml
 |-- nfs_server.yaml
 |-- pre-run_updates.yaml
+|-- rancher_clean.yaml
 |-- redhat_centos_base.yaml
 |-- roles
 |   |-- activiti
@@ -62,9 +65,9 @@
 |   |   |   |-- staging-as01.crt
 |   |   |   `-- staging-as01.key
 |   |   |-- handlers
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   |-- tasks
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   `-- templates
 |   |       |-- etc
 |   |       |   `-- systemd
@@ -76,7 +79,7 @@
 |   |           `-- web.xml.j2
 |   |-- clamav
 |   |   |-- tasks
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   `-- templates
 |   |       |-- etc
 |   |       |   |-- clamd.d
@@ -103,9 +106,9 @@
 |   |                   `-- modsec-clamscan.pl.j2
 |   |-- lb
 |   |   |-- handlers
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   |-- tasks
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   `-- templates
 |   |       `-- etc
 |   |           |-- haproxy
@@ -116,34 +119,39 @@
 |   |               `-- keepalived.j2
 |   |-- nagios
 |   |   |-- tasks
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   `-- templates
 |   |       `-- usr
 |   |           `-- local
 |   |               `-- nagios
-|   |-- nfs-clients
+|   |-- nfs_clients
 |   |   `-- tasks
-|   |       `-- main.yml
-|   |-- nfs-server
+|   |       `-- main.yaml
+|   |-- nfs_server
 |   |   |-- handlers
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   |-- tasks
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   `-- templates
 |   |       `-- etc
 |   |           |-- exports.j2
 |   |           `-- sysconfig
 |   |               `-- nfs.j2
-|   |-- redhat-centos-base
-|   |   |-- handlers
-|   |   |   `-- main.yml
+|   |-- rancher
+|   |   |-- files
+|   |   |   `-- clean_rancher.sh
 |   |   `-- tasks
-|   |       `-- main.yml
-|   |-- samba-server
+|   |       `-- main.yaml
+|   |-- redhat_centos_base
 |   |   |-- handlers
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
+|   |   `-- tasks
+|   |       `-- main.yaml
+|   |-- samba_server
+|   |   |-- handlers
+|   |   |   `-- main.yaml
 |   |   |-- tasks
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   `-- templates
 |   |       `-- etc
 |   |           |-- samba
@@ -153,18 +161,18 @@
 |   |               `-- samba.j2
 |   |-- splunk
 |   |   |-- tasks
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   `-- templates
 |   |       `-- splunk_configs
 |   |           |-- deploymentclient.conf
 |   |           |-- log-local.cfg.j2
 |   |           |-- props.conf
 |   |           `-- splunkforwarder.service.j2
-|   |-- systemd-mounts
+|   |-- systemd_mounts
 |   |   |-- handlers
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   |-- tasks
-|   |   |   `-- main.yml
+|   |   |   `-- main.yaml
 |   |   `-- templates
 |   |       `-- etc
 |   |           `-- systemd
@@ -180,11 +188,11 @@
 |   |                   |-- net-pg-staging_log.mount.j2
 |   |                   |-- net-sechome.mount.j2
 |   |                   `-- usr-local-webapps.mount.j2
-|   `-- systemd-mounts-revert
+|   `-- systemd_mounts_revert
 |       `-- tasks
-|           `-- main.yml
+|           `-- main.yaml
 |-- run_updates.yaml
 `-- splunk.yaml
 
-78 directories, 108 files
-```
+81 directories, 113 files
+'''
