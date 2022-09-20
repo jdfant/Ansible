@@ -25,11 +25,14 @@
   register: haproxy_reconfigured
 
 - name: Check IPTable Chain
-  shell: 'iptables-save | grep ":OS_FIREWALL_ALLOW"'
+  shell: |
+    set -o pipefail
+    'iptables-save | grep ":OS_FIREWALL_ALLOW"'
   register: iptables_chain
 
 - name: Create Chain
   shell: |
+    set -o pipefail
     iptables -N OS_FIREWALL_ALLOW
     iptables -t filter -I INPUT -j OS_FIREWALL_ALLOW
   when: iptables_chain is failed
@@ -49,9 +52,9 @@
   sysctl:
     name: net.ipv4.ip_nonlocal_bind
     value: '1'
-    sysctl_set: yes
+    sysctl_set: true
     state: present
-    reload: yes
+    reload: true
 
 #
 # Bypassing 'Handlers' for this section.
@@ -60,12 +63,12 @@
   systemd:
     name: keepalived
     state: restarted
-    enabled: yes
+    enabled: true
   when: keepalived_reconfigured['changed'] and not ansible_check_mode
 
 - name: Restart haproxy
   systemd:
     name: haproxy
     state: restarted
-    enabled: yes
+    enabled: true
   when: haproxy_reconfigured['changed'] and not ansible_check_mode

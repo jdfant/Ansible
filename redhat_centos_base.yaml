@@ -1,7 +1,7 @@
 ---
-- name: redhat centos base playbook
+- name: Redhat Centos Base Playbook
   hosts: all
-  become: yes
+  become: true
   gather_facts: true
 
 # This is for the redhat_subscription input prompts:
@@ -13,4 +13,4 @@
       prompt: "Enter the Redhat Subscription Password"
 
   roles:
-     - rhel7-base
+    - redhat_centos_base

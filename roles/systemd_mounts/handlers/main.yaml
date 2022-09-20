@@ -1,0 +1,74 @@
+---
+#
+# Enable systemd mount units
+#
+
+- name: Enable net-home.mount
+  systemd:
+    name: net-home.mount
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Enable net-sechome.mount
+  systemd:
+    name: net-sechome.mount
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Enable net-pg-staging_log.mount
+  systemd:
+    name: net-pg-staging_log.mount
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Enable net-pg-staging_backup.mount
+  systemd:
+    name: net-pg-staging_backup.mount
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Enable mnt-secure-webdocs.mount
+  systemd:
+    name: mnt-secure-webdocs.mount
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Enable mnt-webapps.mount
+  systemd:
+    name: mnt-webapps.mount
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Enable mnt-webdocs.mount
+  systemd:
+    name: mnt-webdocs.mount
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Enable net-jenkins-home.mount
+  systemd:
+    name: net-jenkins-home.mount
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Enable usr-local-webapps.mount
+  systemd:
+    name: usr-local-webapps.mount
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Enable net-nagios-nagiosgraph.mount
+  systemd:
+    name: net-nagios-nagiosgraph.mount
+    state: started
+    enabled: true
+    daemon_reload: true

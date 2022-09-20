@@ -1,6 +1,6 @@
 ---
-- name: start samba
+- name: Start Samba
   systemd:
     name: smb
-    enabled: yes
+    enabled: true
     state: started

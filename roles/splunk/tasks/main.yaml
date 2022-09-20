@@ -1,6 +1,6 @@
 ---
 #
-# The use of LDAP AND local system accounts creates duplicate users 
+# The use of LDAP AND local system accounts creates duplicate users
 # and groups. This can get confusing.
 #
 # Here's how to make it all work ..................................
@@ -11,41 +11,51 @@
 #                                                                 #
 ###################################################################
 #
-#- name: Ensure group '{{ splunk_id }}' exists
-#  group:
-#    name: '{{ splunk_id }}'
-#    state: present
+# - name: Ensure group '{{ splunk_id }}' exists
+#   group:
+#     name: '{{ splunk_id }}'
+#     state: present
 #
-#- name: Ensure user '{{ splunk_id }}' exists
-#  user:
-#    name: '{{ splunk_id }}'
-#    home: '{{ splunk_home }}'
-#    shell: '{{ splunk_shell }}'
-#    comment: '{{ splunk_comment }}'
-#    state: present
+# - name: Ensure user '{{ splunk_id }}' exists
+#   user:
+#     name: '{{ splunk_id }}'
+#     home: '{{ splunk_home }}'
+#     shell: '{{ splunk_shell }}'
+#     comment: '{{ splunk_comment }}'
+#     state: present
 
 # Create local systems accounts if they do not exist.
 - name: Register '{{ splunk_id }}' GID
-  shell: >
+  shell: |
+    set -o pipefail
     /usr/bin/getent group '{{ splunk_id }}'|awk -F: '{print $3}'
+  args:
+    executable: /bin/bash
   register: splunk_gid
-  ignore_errors: true
+  failed_when: false
+  changed_when: false
 
 - name: Register '{{ splunk_id }}' UID
-  shell: >
+  shell: |
+    set -o pipefail
     /usr/bin/getent passwd '{{ splunk_id }}'|awk -F: '{print $3}'
+  args:
+    executable: /bin/bash
   register: splunk_uid
-  ignore_errors: true
+  failed_when: false
+  changed_when: false
 
 - name: Register if '{{ splunk_id }}' local group exists
   command: /usr/bin/grep '{{ splunk_id }}' /etc/group
   register: local_splunk_group_exists
-  ignore_errors: true
+  failed_when: false
+  changed_when: false
 
 - name: Register if '{{ splunk_id }}' local user exists
   command: /usr/bin/grep '{{ splunk_id }}' /etc/passwd
   register: local_splunk_user_exists
-  ignore_errors: true
+  failed_when: false
+  changed_when: false
 
 - name: Ensure group '{{ splunk_id }}' exists
   command: /usr/sbin/lgroupadd -g '{{ splunk_gid.stdout }}' '{{ splunk_id }}'
@@ -58,13 +68,14 @@
 - name: Register splunk installed
   command: /usr/bin/grep '{{ splunk_version }}' '{{ splunk_home }}/README-splunk.txt'
   register: splunk_installed
-  ignore_errors: true
+  failed_when: false
+  changed_when: false
 
 - name: Verify correct RPMs are installed
   yum:
     name: '{{ item }}'
     state: present
-    validate_certs: no
+    validate_certs: false
   loop: '{{ splunk_install_rpm_packages }}'
   when: splunk_installed is failed
 
@@ -115,7 +126,7 @@
     group: splunk
     mode: '0755'
     state: directory
-    recurse: yes
+    recurse: true
 
 - name: Delete outputs.conf
   file:
@@ -130,15 +141,19 @@
 - name: Register splunk ftr
   command: /bin/ls '{{ splunk_home }}/ftr'
   register: splunk_ftr
-  ignore_errors: true
+  failed_when: false
+  changed_when: false
 
 # Bypassing handlers on this one.
 - name: Performing splunk 'first time start'
   shell: |
-    /opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt
+    set -o pipefail
+    /opt/splunkforwarder/bin/splunk start --accept-license --answer-true --no-prompt
     /bin/kill $(/sbin/pidof splunkd)
+  args:
+    executable: /bin/bash
   when: splunk_ftr is succeeded
-  ignore_errors: true
+  failed_when: false
 
 - name: Push and enable splunkforwarder.service unit
   template:
@@ -151,9 +166,9 @@
 # Bypassing handlers on this one.
 - name: Enable splunk
   systemd:
-    daemon_reload: yes
+    daemon_reload: true
     name: splunkforwarder.service
-    enabled: yes
+    enabled: true
     state: started
 
 # SO ..... after splunk first starts, it creates a var directory that
@@ -165,4 +180,4 @@
     group: root
     mode: '0710'
     state: directory
-    recurse: yes
+    recurse: true

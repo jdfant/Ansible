@@ -1,38 +1,38 @@
 ---
-- name: yum clean
+- name: Yum Clean
   command: yum clean metadata
 
-- name: restart sshd
+- name: Restart sshd
   service:
     name: sshd
     enabled: true
     state: restarted
 
-- name: restart postfix
+- name: Restart postfix
   service:
     name: postfix
     enabled: true
     state: restarted
 
-- name: restart auditd
+- name: Restart auditd
   service:
     name: auditd
     enabled: true
     state: restarted
 
-- name: restart rsyslog
+- name: Restart rsyslog
   service:
     name: rsyslog
     enabled: true
     state: restarted
 
-- name: update ca-trust
+- name: Update ca-trust
   command: /usr/bin/update-ca-trust
 
-- name: restorecon
+- name: Restorecon
   command: '/usr/sbin/restorecon -iv {{ item }}'
   loop: '{{ restorecon_files }}'
 
-- name: sebools
+- name: Sebools
   command: '/usr/sbin/setsebool -P {{ item }} on'
   loop: '{{ sebools }}'
