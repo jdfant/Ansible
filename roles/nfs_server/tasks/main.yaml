@@ -1,19 +1,19 @@
 ---
 - name: Verify nfs-utils is installed
-  yum:
+  ansible.builtin.yum:
     name: '{{ item }}'
     state: present
   loop: '{{ nfs_rpm_packages }}'
 
 - name: Create NFS shared directories
-  file:
+  ansible.builtin.file:
     path: '{{ item }}'
     state: directory
     mode: '0755'
   loop: '{{ create_nfs_dirs }}'
 
 - name: Configure nfs exports
-  template:
+  ansible.builtin.template:
     src: etc/exports.j2
     dest: /etc/exports
     owner: root
@@ -22,14 +22,14 @@
   notify: exportfs
 
 - name: Prevent NFS mounting of any v3 or less
-  systemd:
+  ansible.builtin.systemd:
     name: '{{ item }}'
     state: stopped
     masked: true
   loop: '{{ disabled_nfs_services }}'
 
 - name: Push /etc/sysconfig/nfs to server
-  template:
+  ansible.builtin.template:
     src: etc/sysconfig/nfs.j2
     dest: /etc/sysconfig/nfs
     owner: root
@@ -37,13 +37,13 @@
     mode: '0644'
 
 - name: Reload NFS
-  systemd:
+  ansible.builtin.systemd:
     name: nfs
     enabled: true
     state: reloaded
 
 - name: Configure FirewallD
-  firewalld:
+  ansible.posix.firewalld:
     service: nfs
     permanent: true
     state: enabled

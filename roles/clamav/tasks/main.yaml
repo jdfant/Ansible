@@ -6,7 +6,7 @@
 # This is a contrived MESS. All due to the fact that all systems have unique local and AD users and groups
 #
 - name: Register '{{ clamscan_id }}' GID
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     /usr/bin/getent group '{{ clamscan_id }}'|awk -F: '{print $3}'
   register: clamscan_gid
@@ -14,7 +14,7 @@
   changed_when: false
 
 - name: Register '{{ clamscan_id }}' UID
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     /usr/bin/getent passwd '{{ clamscan_id }}'|awk -F: '{print $3}'
   register: clamscan_uid
@@ -22,19 +22,19 @@
   changed_when: false
 
 - name: Register if '{{ clamscan_id }}' local group exists
-  command: /usr/bin/grep '{{ clamscan_id }}' /etc/group
+  ansible.builtin.command: /usr/bin/grep '{{ clamscan_id }}' /etc/group
   register: local_clamscan_group_exists
   failed_when: false
   changed_when: false
 
 - name: Register if '{{ clamscan_id }}' local user exists
-  command: /usr/bin/grep '{{ clamscan_id }}' /etc/passwd
+  ansible.builtin.command: /usr/bin/grep '{{ clamscan_id }}' /etc/passwd
   register: local_clamscan_user_exists
   failed_when: false
   changed_when: false
 
 - name: Register '{{ clamupdate_id }}' GID
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     /usr/bin/getent group '{{ clamupdate_id }}'|awk -F: '{print $3}'
   register: clamupdate_gid
@@ -42,7 +42,7 @@
   changed_when: false
 
 - name: Register '{{ clamupdate_id }}' UID
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     /usr/bin/getent passwd '{{ clamupdate_id }}'|awk -F: '{print $3}'
   register: clamupdate_uid
@@ -50,31 +50,31 @@
   changed_when: false
 
 - name: Register if '{{ clamupdate_id }}' local group exists
-  command: /usr/bin/grep '{{ clamupdate_id }}' /etc/group
+  ansible.builtin.command: /usr/bin/grep '{{ clamupdate_id }}' /etc/group
   register: local_clamupdate_group_exists
   failed_when: false
   changed_when: false
 
 - name: Register if '{{ clamupdate_id }}' local user exists
-  command: /usr/bin/grep '{{ clamupdate_id }}' /etc/passwd
+  ansible.builtin.command: /usr/bin/grep '{{ clamupdate_id }}' /etc/passwd
   register: local_clamupdate_user_exists
   failed_when: false
   changed_when: false
 
 - name: Ensure group '{{ clamscan_id }}' exists
-  command: /usr/sbin/lgroupadd -g '{{ clamscan_gid.stdout }}' '{{ clamscan_id }}'
+  ansible.builtin.command: /usr/sbin/lgroupadd -g '{{ clamscan_gid.stdout }}' '{{ clamscan_id }}'
   when: local_clamscan_group_exists is failed
 
 - name: Ensure group '{{ clamupdate_id }}' exists
-  command: /usr/sbin/lgroupadd -g '{{ clamupdate_gid.stdout }}' '{{ clamupdate_id }}'
+  ansible.builtin.command: /usr/sbin/lgroupadd -g '{{ clamupdate_gid.stdout }}' '{{ clamupdate_id }}'
   when: local_clamupdate_group_exists is failed
 
 - name: Ensure user '{{ clamscan_id }}' exists
-  command: /usr/sbin/luseradd -M -d '{{ clamscan_home }}' -s '{{ clamscan_shell }}' -u '{{ clamscan_uid.stdout }}' '{{ clamscan_id }}'
+  ansible.builtin.command: /usr/sbin/luseradd -M -d '{{ clamscan_home }}' -s '{{ clamscan_shell }}' -u '{{ clamscan_uid.stdout }}' '{{ clamscan_id }}'
   when: local_clamscan_user_exists is failed
 
 - name: Ensure user '{{ clamupdate_id }}' exists
-  command: /usr/sbin/luseradd -d '{{ clamupdate_home }}' -s '{{ clamupdate_shell }}' -u '{{ clamupdate_uid.stdout }}' '{{ clamupdate_id }}'
+  ansible.builtin.command: /usr/sbin/luseradd -d '{{ clamupdate_home }}' -s '{{ clamupdate_shell }}' -u '{{ clamupdate_uid.stdout }}' '{{ clamupdate_id }}'
   when: local_clamupdate_user_exists is failed
 
 ############################################################################
@@ -83,19 +83,19 @@
 #
 ############################################################################
 # - name: Ensure group '{{ clamscan_id }}' exists
-#   group:
+#   ansible.builtin.group:
 #     name: '{{ clamscan_id }}'
 #     system: true
 #     state: present
 #
 # - name: Ensure group '{{ clamupdate_id }}' exists
-#   group:
+#   ansible.builtin.group:
 #     name: '{{ clamupdate_id }}'
 #     system: true
 #     state: present
 #
 # - name: Ensure user '{{ clamscan_id }}' exists
-#   user:
+#   ansible.builtin.user:
 #     name: '{{ clamscan_id }}'
 #     home: '{{ clamscan_home }}'
 #     shell: '{{ clamscan_shell }}'
@@ -106,7 +106,7 @@
 #     state: present
 #
 # - name: Ensure user '{{ clamupdate_id }}' exists
-#   user:
+#   ansible.builtin.user:
 #     name: '{{ clamupdate_id }}'
 #     home: '{{ clamupdate_home }}'
 #     shell: '{{ clamupdate_shell }}'
@@ -116,13 +116,13 @@
 #     state: present
 
 - name: Verify correct RPMs are installed
-  yum:
+  ansible.builtin.yum:
     name: '{{ item }}'
     state: present
   loop: '{{ clamav_install_rpm_packages }}'
 
 - name: Push freshclam.conf
-  template:
+  ansible.builtin.template:
     src: etc/freshclam.conf.j2
     dest: /etc/freshclam.conf
     owner: root
@@ -130,7 +130,7 @@
     mode: '0644'
 
 - name: Push and enable clam-freshclam.service unit
-  template:
+  ansible.builtin.template:
     src: etc/systemd/system/clam-freshclam.service.j2
     dest: /etc/systemd/system/clam-freshclam.service
     owner: root
@@ -138,7 +138,7 @@
     mode: '0644'
 
 - name: Create/Ensure '{{ clamav_crons_dir }}'
-  file:
+  ansible.builtin.file:
     path: '{{ clamav_crons_dir }}'
     owner: root
     group: root
@@ -146,7 +146,7 @@
     state: directory
 
 - name: Create/Ensure '{{ clamav_clam_d_dir }}'
-  file:
+  ansible.builtin.file:
     path: '{{ clamav_clam_d_dir }}'
     owner: root
     group: root
@@ -154,7 +154,7 @@
     state: directory
 
 - name: Push scan.conf
-  template:
+  ansible.builtin.template:
     src: etc/clamd.d/scan.conf.j2
     dest: '{{ clamav_clam_d_dir }}/scan.conf'
     owner: root
@@ -162,7 +162,7 @@
     mode: '0644'
 
 - name: Push beta_nas_clamav cron script
-  template:
+  ansible.builtin.template:
     src: usr/local/crons/scripts/beta_nas_clamav.j2
     dest: /usr/local/crons/scripts/beta_nas_clamav
     owner: root
@@ -170,7 +170,7 @@
     mode: '0700'
 
 - name: Push clamav cron script
-  template:
+  ansible.builtin.template:
     src: usr/local/crons/scripts/clamav.j2
     dest: /usr/local/crons/scripts/clamav
     owner: root
@@ -178,7 +178,7 @@
     mode: '0700'
 
 - name: Push clamdscan cron script
-  template:
+  ansible.builtin.template:
     src: usr/local/crons/scripts/clamdscan.j2
     dest: /usr/local/crons/scripts/clamdscan
     owner: root
@@ -186,7 +186,7 @@
     mode: '0700'
 
 - name: Push maldetect cron script
-  template:
+  ansible.builtin.template:
     src: usr/local/crons/scripts/maldetect.j2
     dest: /usr/local/crons/scripts/maldetect
     owner: root
@@ -194,7 +194,7 @@
     mode: '0700'
 
 - name: Push hookscan.sh
-  template:
+  ansible.builtin.template:
     src: usr/local/sbin/hookscan.sh.j2
     dest: /usr/local/sbin/hookscan.sh
     owner: root
@@ -202,7 +202,7 @@
     mode: '0755'
 
 - name: Push modsec-clamscan.pl
-  template:
+  ansible.builtin.template:
     src: usr/local/sbin/modsec-clamscan.pl.j2
     dest: /usr/local/sbin/modsec-clamscan.pl
     owner: root
@@ -210,7 +210,7 @@
     mode: '0755'
 
 - name: Set '{{ clamav_sebools }}' flag on and keep it persistent across reboots
-  seboolean:
+  ansible.posix.seboolean:
     name: '{{ clamav_sebools }}'
     state: true
     persistent: true
@@ -219,7 +219,7 @@
 # LMD (Linux Malware Detection) Section
 #
 - name: Unarchive Maldetect to /tmp
-  unarchive:
+  ansible.builtin.unarchive:
     src: '{{ maldetect_url }}'
     dest: /tmp
     mode: '0755'
@@ -227,34 +227,34 @@
     validate_certs: false
 
 - name: Register installed Maldetect version
-  command: cat '{{ maldetect_dir }}/VERSION.hash'
+  ansible.builtin.command: cat '{{ maldetect_dir }}/VERSION.hash'
   register: installed_maldetect_version
   failed_when: false
   changed_when: false
 
 - name: Register Temporary Maldetect version
-  shell: cat /tmp/maldetect*/files/VERSION.hash
+  ansible.builtin.shell: cat /tmp/maldetect*/files/VERSION.hash
   register: tmp_maldetect_version
   failed_when: false
   changed_when: false
 
 - name: Run Maldetect installer
-  shell: cd /tmp/maldetect* && ./install.sh
+  ansible.builtin.shell: cd /tmp/maldetect* && ./install.sh
   when: installed_maldetect_version.stdout != tmp_maldetect_version.stdout
 
 - name: Remove Temporary Maldetect
-  file:
+  ansible.builtin.file:
     path: /tmp/maldetect*
     state: absent
 
 - name: Push conf.maldet
-  template:
+  ansible.builtin.template:
     src: usr/local/maldetect/conf.maldet.j2
     dest: /usr/local/maldetect/conf.maldet
     mode: '0700'
 
 - name: Push ignore_paths.j2
-  template:
+  ansible.builtin.template:
     src: usr/local/maldetect/ignore_paths.j2
     dest: /usr/local/maldetect/ignore_paths
     mode: '0755'

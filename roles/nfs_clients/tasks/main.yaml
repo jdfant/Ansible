@@ -1,11 +1,11 @@
 ---
 - name: Verify nfs-utils is installed
-  yum:
+  ansible.builtin.yum:
     name: nfs-utils
     state: present
 
 - name: Stopping all tomcats
-  systemd:
+  ansible.builtin.systemd:
     name: '{{ item }}'
     state: stopped
   loop: '{{ tomcat_services }}'
@@ -13,7 +13,7 @@
   tags: stop_services
 
 - name: Stopping core services
-  systemd:
+  ansible.builtin.systemd:
     name: '{{ item }}'
     state: stopped
   loop: '{{ core_services }}'
@@ -21,19 +21,19 @@
   tags: stop_services
 
 - name: Stopping postgresql
-  systemd:
+  ansible.builtin.systemd:
     name: postgresql-9.6
     state: stopped
   failed_when: false
   tags: stop_services
 
 - name: Disable Autofs
-  systemd:
+  ansible.builtin.systemd:
     name: autofs
     state: stopped
     enabled: false
 
 - name: Remove /etc/auto.master
-  file:
+  ansible.builtin.file:
     path: /etc/auto.master
     state: absent

@@ -8,7 +8,7 @@
 
 # Create local systems accounts if they do not exist.
 - name: Register '{{ nagios_id }}' GID
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     /usr/bin/getent group '{{ nagios_id }}' | awk -F: '{print $3}'
   register: nagios_gid
@@ -16,7 +16,7 @@
   changed_when: false
 
 - name: Register '{{ nagios_id }}' UID
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     /usr/bin/getent passwd '{{ nagios_id }}'|awk -F: '{print $3}'
   register: nagios_uid
@@ -24,23 +24,23 @@
   changed_when: false
 
 - name: Register if '{{ nagios_id }}' local group exists
-  command: /usr/bin/grep '{{ nagios_id }}' /etc/group
+  ansible.builtin.command: /usr/bin/grep '{{ nagios_id }}' /etc/group
   register: local_nagios_group_exists
   failed_when: false
   changed_when: false
 
 - name: Register if '{{ nagios_id }}' local user exists
-  command: /usr/bin/grep '{{ nagios_id }}' /etc/passwd
+  ansible.builtin.command: /usr/bin/grep '{{ nagios_id }}' /etc/passwd
   register: local_nagios_user_exists
   failed_when: false
   changed_when: false
 
 - name: Ensure group '{{ nagios_id }}' exists
-  command: /usr/sbin/lgroupadd -g '{{ nagios_gid.stdout }}' '{{ nagios_id }}'
+  ansible.builtin.command: /usr/sbin/lgroupadd -g '{{ nagios_gid.stdout }}' '{{ nagios_id }}'
   when: local_nagios_group_exists is failed
 
 - name: Ensure user '{{ nagios_id }}' exists
-  command: /usr/sbin/luseradd -d '{{ nagios_home }}' -s '{{ nagios_shell }}' -u '{{ nagios_uid.stdout }}' '{{ nagios_id }}'
+  ansible.builtin.command: /usr/sbin/luseradd -d '{{ nagios_home }}' -s '{{ nagios_shell }}' -u '{{ nagios_uid.stdout }}' '{{ nagios_id }}'
   when: local_nagios_user_exists is failed
 
 ###################################################################
@@ -50,7 +50,7 @@
 ###################################################################
 #
 # - name: Ensure group '{{ nagios_id }}' exists
-#   group:
+#   ansible.builtin.group:
 #     name: '{{ nagios_id }}'
 #     system: true
 #     local: true
@@ -58,7 +58,7 @@
 #     state: present
 
 # - name: Ensure user '{{ nagios_id }}' exists
-#   user:
+#   ansible.builtin.user:
 #     name: '{{ nagios_id }}'
 #     home: '{{ nagios_home }}'
 #     shell: '{{ nagios_shell }}'
@@ -68,13 +68,13 @@
 #     state: present
 
 - name: Verify correct RPMs are installed
-  yum:
+  ansible.builtin.yum:
     name: '{{ item }}'
     state: present
   loop: '{{ nagios_install_rpm_packages }}'
 
 - name: Create/Ensure nagios home dir
-  file:
+  ansible.builtin.file:
     path: '{{ nagios_home }}'
     owner: '{{ nagios_id }}'
     group: '{{ nagios_id }}'
@@ -82,7 +82,7 @@
     state: directory
 
 - name: Create/Ensure nagios .ssh dir
-  file:
+  ansible.builtin.file:
     path: '{{ nagios_home }}/.ssh'
     owner: '{{ nagios_id }}'
     group: '{{ nagios_id }}'
@@ -90,13 +90,13 @@
     state: directory
 
 - name: Register '{{ nagios_libexec_symlink }}' symlink
-  command: readlink '{{ nagios_libexec_symlink }}'
+  ansible.builtin.command: readlink '{{ nagios_libexec_symlink }}'
   register: libexec_symlink
   failed_when: false
   changed_when: false
 
 - name: Create/Ensure '{{ nagios_authorized_keys }}'
-  template:
+  ansible.builtin.template:
     src: 'usr/local/nagios/.ssh/authorized_keys.j2'
     dest: '{{ nagios_authorized_keys }}'
     owner: '{{ nagios_id }}'
@@ -104,7 +104,7 @@
     mode: '0600'
 
 - name: Unarchive Custom Nagios plugins to '{{ nagios_special_plugins_dir }}'
-  unarchive:
+  ansible.builtin.unarchive:
     src: '{{ nagios_special_plugins_url }}'
     dest: '{{ nagios_home }}'
     owner: '{{ nagios_id }}'
@@ -115,7 +115,7 @@
     creates: '{{ nagios_special_plugins_dir }}'
 
 - name: Create/Ensure '{{ nagios_special_plugins_dir }}' dir
-  file:
+  ansible.builtin.file:
     path: '{{ nagios_special_plugins_dir }}'
     owner: '{{ nagios_id }}'
     group: '{{ nagios_id }}'
@@ -123,7 +123,7 @@
     state: directory
 
 - name: Symlink nagios '{{ nagios_libexec_symlink }}' to '{{ nagios_plugins_dir }}'
-  file:
+  ansible.builtin.file:
     src: '{{ nagios_plugins_dir }}'
     dest: '{{ nagios_libexec_symlink }}'
     owner: root

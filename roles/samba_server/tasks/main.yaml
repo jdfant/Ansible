@@ -1,12 +1,12 @@
 ---
 - name: Verify Samba RPMs are installed
-  yum:
+  ansible.builtin.yum:
     name: '{{ item }}'
     state: present
   loop: '{{ samba_rpm_packages }}'
 
 - name: Push Samba config files
-  template:
+  ansible.builtin.template:
     owner: root
     group: root
     mode: '0644'

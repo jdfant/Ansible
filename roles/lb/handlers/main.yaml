@@ -1,6 +1,6 @@
 ---
 - name: Iptables Save
-  shell: 'iptables-save | tee /etc/sysconfig/iptables'
+  ansible.builtin.shell: 'iptables-save | tee /etc/sysconfig/iptables'
 
 - name: Iptables Restore
-  shell: 'iptables-restore < /etc/sysconfig/iptables'
+  ansible.builtin.shell: 'iptables-restore < /etc/sysconfig/iptables'

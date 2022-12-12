@@ -1,38 +1,38 @@
 ---
 - name: Yum Clean
-  command: yum clean metadata
+  ansible.builtin.command: yum clean metadata
 
 - name: Restart sshd
-  service:
+  ansible.builtin.service:
     name: sshd
     enabled: true
     state: restarted
 
 - name: Restart postfix
-  service:
+  ansible.builtin.service:
     name: postfix
     enabled: true
     state: restarted
 
 - name: Restart auditd
-  service:
+  ansible.builtin.service:
     name: auditd
     enabled: true
     state: restarted
 
 - name: Restart rsyslog
-  service:
+  ansible.builtin.service:
     name: rsyslog
     enabled: true
     state: restarted
 
 - name: Update ca-trust
-  command: /usr/bin/update-ca-trust
+  ansible.builtin.command: /usr/bin/update-ca-trust
 
 - name: Restorecon
-  command: '/usr/sbin/restorecon -iv {{ item }}'
+  ansible.builtin.command: '/usr/sbin/restorecon -iv {{ item }}'
   loop: '{{ restorecon_files }}'
 
 - name: Sebools
-  command: '/usr/sbin/setsebool -P {{ item }} on'
+  ansible.builtin.command: '/usr/sbin/setsebool -P {{ item }} on'
   loop: '{{ sebools }}'

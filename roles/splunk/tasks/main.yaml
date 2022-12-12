@@ -20,13 +20,13 @@
 #   user:
 #     name: '{{ splunk_id }}'
 #     home: '{{ splunk_home }}'
-#     shell: '{{ splunk_shell }}'
+#     ansible.builtin.shell: '{{ splunk_shell }}'
 #     comment: '{{ splunk_comment }}'
 #     state: present
 
 # Create local systems accounts if they do not exist.
 - name: Register '{{ splunk_id }}' GID
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     /usr/bin/getent group '{{ splunk_id }}'|awk -F: '{print $3}'
   args:
@@ -36,7 +36,7 @@
   changed_when: false
 
 - name: Register '{{ splunk_id }}' UID
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     /usr/bin/getent passwd '{{ splunk_id }}'|awk -F: '{print $3}'
   args:
@@ -46,33 +46,33 @@
   changed_when: false
 
 - name: Register if '{{ splunk_id }}' local group exists
-  command: /usr/bin/grep '{{ splunk_id }}' /etc/group
+  ansible.builtin.command: /usr/bin/grep '{{ splunk_id }}' /etc/group
   register: local_splunk_group_exists
   failed_when: false
   changed_when: false
 
 - name: Register if '{{ splunk_id }}' local user exists
-  command: /usr/bin/grep '{{ splunk_id }}' /etc/passwd
+  ansible.builtin.command: /usr/bin/grep '{{ splunk_id }}' /etc/passwd
   register: local_splunk_user_exists
   failed_when: false
   changed_when: false
 
 - name: Ensure group '{{ splunk_id }}' exists
-  command: /usr/sbin/lgroupadd -g '{{ splunk_gid.stdout }}' '{{ splunk_id }}'
+  ansible.builtin.command: /usr/sbin/lgroupadd -g '{{ splunk_gid.stdout }}' '{{ splunk_id }}'
   when: local_splunk_group_exists is failed
 
 - name: Ensure user '{{ splunk_id }}' exists
-  command: /usr/sbin/luseradd -d '{{ splunk_home }}' -s '{{ splunk_shell }}' -u '{{ splunk_uid.stdout }}' '{{ splunk_id }}'
+  ansible.builtin.command: /usr/sbin/luseradd -d '{{ splunk_home }}' -s '{{ splunk_shell }}' -u '{{ splunk_uid.stdout }}' '{{ splunk_id }}'
   when: local_splunk_user_exists is failed
 
 - name: Register splunk installed
-  command: /usr/bin/grep '{{ splunk_version }}' '{{ splunk_home }}/README-splunk.txt'
+  ansible.builtin.command: /usr/bin/grep '{{ splunk_version }}' '{{ splunk_home }}/README-splunk.txt'
   register: splunk_installed
   failed_when: false
   changed_when: false
 
 - name: Verify correct RPMs are installed
-  yum:
+  ansible.builtin.yum:
     name: '{{ item }}'
     state: present
     validate_certs: false
@@ -80,7 +80,7 @@
   when: splunk_installed is failed
 
 - name: Push and enable splunkforwarder.service unit
-  template:
+  ansible.builtin.template:
     src: splunk_configs/splunkforwarder.service.j2
     dest: /etc/systemd/system/splunkforwarder.service
     owner: root
@@ -88,7 +88,7 @@
     mode: '0644'
 
 - name: Create/Ensure splunk log dir
-  file:
+  ansible.builtin.file:
     path: '{{ splunk_logs }}'
     owner: root
     group: root
@@ -96,7 +96,7 @@
     state: directory
 
 - name: Push log-local.cfg
-  template:
+  ansible.builtin.template:
     src: splunk_configs/log-local.cfg.j2
     dest: '{{ splunk_home }}/etc/log-local.cfg'
     owner: 'splunk'
@@ -104,7 +104,7 @@
     mode: '0755'
 
 - name: Push deploymentclient.conf
-  template:
+  ansible.builtin.template:
     src: splunk_configs/deploymentclient.conf
     dest: '{{ splunk_home }}/etc/system/local/deploymentclient.conf'
     owner: splunk
@@ -112,7 +112,7 @@
     mode: '0755'
 
 - name: Push log-local.cfg
-  template:
+  ansible.builtin.template:
     src: splunk_configs/props.conf
     dest: '{{ splunk_home }}/etc/system/local/props.conf'
     owner: 'splunk'
@@ -120,7 +120,7 @@
     mode: '0755'
 
 - name: Create/Ensure splunk home dir
-  file:
+  ansible.builtin.file:
     path: '{{ splunk_home }}'
     owner: splunk
     group: splunk
@@ -129,24 +129,24 @@
     recurse: true
 
 - name: Delete outputs.conf
-  file:
+  ansible.builtin.file:
     path: '{{ splunk_home }}/etc/system/local/outputs.conf'
     state: absent
 
 - name: Delete inputs.conf
-  file:
+  ansible.builtin.file:
     path: '{{ splunk_home }}/etc/system/local/inputs.conf'
     state: absent
 
 - name: Register splunk ftr
-  command: /bin/ls '{{ splunk_home }}/ftr'
+  ansible.builtin.command: /bin/ls '{{ splunk_home }}/ftr'
   register: splunk_ftr
   failed_when: false
   changed_when: false
 
 # Bypassing handlers on this one.
 - name: Performing splunk 'first time start'
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     /opt/splunkforwarder/bin/splunk start --accept-license --answer-true --no-prompt
     /bin/kill $(/sbin/pidof splunkd)
@@ -156,7 +156,7 @@
   failed_when: false
 
 - name: Push and enable splunkforwarder.service unit
-  template:
+  ansible.builtin.template:
     src: splunk_configs/splunkforwarder.service.j2
     dest: /etc/systemd/system/splunkforwarder.service
     owner: root
@@ -165,7 +165,7 @@
 
 # Bypassing handlers on this one.
 - name: Enable splunk
-  systemd:
+  ansible.builtin.systemd:
     daemon_reload: true
     name: splunkforwarder.service
     enabled: true
@@ -174,7 +174,7 @@
 # SO ..... after splunk first starts, it creates a var directory that
 # is owned by root with different perms than the splunk home directory. :/
 - name: Set permissions on '{{ splunk_home }}/var'
-  file:
+  ansible.builtin.file:
     path: '{{ splunk_home }}/var'
     owner: root
     group: root

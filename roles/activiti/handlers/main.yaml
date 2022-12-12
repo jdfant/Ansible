@@ -1,6 +1,6 @@
 ---
 - name: Enable Activiti
-  systemd:
+  ansible.builtin.systemd:
     name: activiti
     daemon_reload: true
     state: reloaded

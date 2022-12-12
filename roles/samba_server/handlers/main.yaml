@@ -1,6 +1,6 @@
 ---
 - name: Start Samba
-  systemd:
+  ansible.builtin.systemd:
     name: smb
     enabled: true
     state: started
