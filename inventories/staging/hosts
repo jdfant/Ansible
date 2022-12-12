@@ -18,7 +18,7 @@ rancher
 rancher_lb
 
 [activiti]
-staging-at01
+staging-as01
 
 [apache]
 staging-ws01

@@ -21,7 +21,7 @@ openshift_nas
 jump01
 
 [activiti]
-prod-at01
+prod-as01
 
 [apache]
 prod-ws01
