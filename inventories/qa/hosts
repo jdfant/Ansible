@@ -19,7 +19,7 @@ rancher
 rancher_lb
 
 [activiti]
-qa-at01
+qa-as01
 
 [apache]
 qa-ws01
