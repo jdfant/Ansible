@@ -3,14 +3,14 @@
 # ADD REGISTER TO CHECK /proc FOR NFS MOUNTS BEFORE 'chattr -i'
 
 - name: Stop and disable NFS systemd-mount units
-  systemd:
+  ansible.builtin.systemd:
     name: '{{ item }}'
     state: stopped
     enabled: true
   loop: '{{ systemd_mount_unit }}'
 
 - name: Remove Immutable bit on NFS mount points
-  file:
+  ansible.builtin.file:
     path: '{{ item }}'
     state: directory
     attributes: '-i'
@@ -18,14 +18,14 @@
   loop: '{{ nfs_mountpoint }}'
 
 - name: Remove NFS client mount points
-  file:
+  ansible.builtin.file:
     path: '{{ item }}'
     state: absent
   failed_when: false
   loop: '{{ nfs_mountpoint_2_remove }}'
 
 - name: Remove NFS systemd-mount units
-  file:
+  ansible.builtin.file:
     path: '/etc/systemd/system/{{ item }}'
     state: absent
   failed_when: false

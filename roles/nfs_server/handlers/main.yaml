@@ -1,9 +1,9 @@
 ---
 - name: Exportfs
-  command: exportfs -av
+  ansible.builtin.command: exportfs -av
 
 - name: Restart firewalld
-  systemd:
+  ansible.builtin.systemd:
     name: firewalld
     state: reloaded
     enabled: true

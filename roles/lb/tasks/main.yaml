@@ -1,12 +1,12 @@
 ---
 - name: Install KeepaliveD & HAProxy packages
-  yum:
+  ansible.builtin.yum:
     name: '{{ item }}'
     state: present
   loop: '{{ lb_packages }}'
 
 - name: Configure Keepalived Master
-  template:
+  ansible.builtin.template:
     src: etc/keepalived/keepalived.conf.j2
     dest: /etc/keepalived/keepalived.conf
     owner: root
@@ -16,7 +16,7 @@
   register: keepalived_reconfigured
 
 - name: Configure HAProxy
-  template:
+  ansible.builtin.template:
     src: etc/haproxy/haproxy.cfg.j2
     dest: /etc/haproxy/haproxy.cfg
     owner: root
@@ -25,20 +25,20 @@
   register: haproxy_reconfigured
 
 - name: Check IPTable Chain
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     'iptables-save | grep ":OS_FIREWALL_ALLOW"'
   register: iptables_chain
 
 - name: Create Chain
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     iptables -N OS_FIREWALL_ALLOW
     iptables -t filter -I INPUT -j OS_FIREWALL_ALLOW
   when: iptables_chain is failed
 
 - name: Configure IPTables rules
-  iptables:
+  ansible.builtin.iptables:
     chain: OS_FIREWALL_ALLOW
     protocol: tcp
     match: tcp,state
@@ -49,7 +49,7 @@
   notify: iptables-save
 
 - name: Set Sysctl for KeepaliveD VIPs
-  sysctl:
+  ansible.posix.sysctl:
     name: net.ipv4.ip_nonlocal_bind
     value: '1'
     sysctl_set: true
@@ -60,14 +60,14 @@
 # Bypassing 'Handlers' for this section.
 #
 - name: Restart Keepalived
-  systemd:
+  ansible.builtin.systemd:
     name: keepalived
     state: restarted
     enabled: true
   when: keepalived_reconfigured['changed'] and not ansible_check_mode
 
 - name: Restart haproxy
-  systemd:
+  ansible.builtin.systemd:
     name: haproxy
     state: restarted
     enabled: true

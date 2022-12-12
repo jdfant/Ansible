@@ -1,6 +1,6 @@
 ---
 - name: Create all necessary directories
-  file:
+  ansible.builtin.file:
     path: '{{ item }}'
     state: directory
     mode: '0755'
@@ -9,7 +9,7 @@
   loop: '{{ create_dirs }}'
 
 - name: Register as subscription credentials with auto-subscribe
-  redhat_subscription:
+  community.general.redhat_subscription:
     state: present
     username: '{{ redhat_subscription_username }}'
     password: '{{ redhat_subscription_password }}'
@@ -18,7 +18,7 @@
   when: ansible_facts['distribution'] == "RedHat"
 
 - name: 'Install CentOS base packages: {{ rhel7_base_package_install }}'
-  yum:
+  ansible.builtin.yum:
     name: '{{ item }}'
     state: present
     validate_certs: false
@@ -26,14 +26,14 @@
   when: ansible_facts['distribution'] == "CentOS"
 
 - name: 'Install RedHat base packages: {{ rhel7_base_package_install }}'
-  yum:
+  ansible.builtin.yum:
     name: '{{ item }}'
     state: present
   loop: '{{ rhel7_base_package_install }}'
   when: ansible_facts['distribution'] == "RedHat"
 
 - name: 'Remove base packages: {{ rhel7_base_package_remove }}'
-  yum:
+  ansible.builtin.yum:
     name: '{{ item }}'
     state: absent
   loop: '{{ rhel7_base_package_remove }}'
@@ -41,7 +41,7 @@
     - yum clean
 
 - name: 'Install system files with mode 600 {{ rhel7_gp1_files }}'
-  copy:
+  ansible.builtin.copy:
     src: '{{ item }}'
     dest: '/{{ item }}'
     owner: root
@@ -50,7 +50,7 @@
   loop: '{{ rhel7_gp1_files }}'
 
 - name: 'Install system files with mode 644 {{ rhel7_gp2_files }}'
-  copy:
+  ansible.builtin.copy:
     src: '{{ item }}'
     dest: '/{{ item }}'
     owner: root
@@ -59,7 +59,7 @@
   loop: '{{ rhel7_gp2_files }}'
 
 - name: 'Install system files with mode 700 {{ rhel7_gp3_files }}'
-  copy:
+  ansible.builtin.copy:
     src: '{{ item }}'
     dest: '/{{ item }}'
     owner: root
@@ -68,7 +68,7 @@
   loop: '{{ rhel7_gp3_files }}'
 
 - name: 'Install system files with mode 755 {{ rhel7_gp4_files }}'
-  copy:
+  ansible.builtin.copy:
     src: '{{ item }}'
     dest: '/{{ item }}'
     owner: root
@@ -77,7 +77,7 @@
   loop: '{{ rhel7_gp4_files }}'
 
 - name: 'Copy {{ certs_to_copy }} to remote'
-  copy:
+  ansible.builtin.copy:
     src: '{{ item }}'
     dest: '/etc/pki/ca-trust/source/anchors/{{ item }}'
     owner: root
@@ -87,7 +87,7 @@
   notify: update ca-trust
 
 - name: Push sudoers file
-  copy:
+  ansible.builtin.copy:
     src: '{{ sudoers }}'
     dest: '/{{ sudoers }}'
     owner: root
@@ -95,7 +95,7 @@
     mode: '0440'
 
 - name: Mitigation for CIS RHEL7 Benchmark section 6.1
-  file:
+  ansible.builtin.file:
     path: '{{ item }}'
     owner: root
     group: root
@@ -104,57 +104,57 @@
   loop: '{{ rhel_stig_fileset1 }}'
 
 - name: Add timestamps to global bash history
-  lineinfile:
+  ansible.builtin.lineinfile:
     state: present
     dest: /etc/bashrc
     insertbefore: "vim"
     line: 'export HISTTIMEFORMAT="%F %T "'
 
 - name: Change num_logs in audit config file
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/audit/auditd.conf
     regexp: '^num_logs ='
     line: 'num_logs = 20'
 
 - name: Change max_log_file in audit config file
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/audit/auditd.conf
     regexp: '^max_log_file ='
     line: 'max_log_file = 10'
 
 - name: Change max_log_file_action in audit config file
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/audit/auditd.conf
     regexp: '^max_log_file_action ='
     line: 'max_log_file_action = ROTATE'
   notify: restart auditd
 
 - name: Set correct Color Coding in /root/.bash_profile
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /root/.bash_profile
     regexp: '^#Color Coding -- 2010092801'
     line: '#Color Coding -- 2010092802'
     backrefs: true
 
 - name: Remove readonly PS1 in /root/.bash_profile
-  lineinfile:
+  ansible.builtin.lineinfile:
     state: absent
     path: /root/.bash_profile
     regexp: '^readonly PS1'
 
 - name: Add tmpfs mount for /etc/fstab
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/fstab
     line: 'tmpfs                                     /dev/shm                tmpfs   defaults,nodev,nosuid,noexec 0 0'
 
 - name: Mitigation for CVE-2017-2636
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/modprobe.d/cve-2017-2636.conf
     line: 'install n_hdlc /bin/true'
     create: true
 
 - name: Set the root password
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/shadow
     regexp: '^root:'
     line: 'root:{{ root_pw }}'
@@ -165,8 +165,8 @@
     - restart rsyslog
 
 - name: Ensuring all handlers have been executed
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Reboot server
-  reboot:
+  ansible.builtin.reboot:
   tags: reboot
