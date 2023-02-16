@@ -1,3 +1,2 @@
 skip_list:
-  - 'fqcn-builtins'
-  - 'risky-file-permissions'
+  - 'name[template]' # Seriously?? This rule is not necessary, IMO ... that is all!

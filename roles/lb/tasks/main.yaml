@@ -28,6 +28,7 @@
   ansible.builtin.shell: |
     set -o pipefail
     'iptables-save | grep ":OS_FIREWALL_ALLOW"'
+  changed_when: false
   register: iptables_chain
 
 - name: Create Chain
