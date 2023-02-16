@@ -1,5 +1,5 @@
 ---
-- name: activiti playbook
+- name: Activiti playbook
   hosts: all
   become: true
   gather_facts: false

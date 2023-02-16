@@ -10,23 +10,23 @@
 
 # Create local systems accounts if they do not exist.
 - name: Register if '{{ activiti_group }}' local group exists
-  ansible.builtin.unarchive: /usr/bin/grep '{{ activiti_group }}' /etc/group
+  ansible.builtin.command: /usr/bin/grep '{{ activiti_group }}' /etc/group
   register: local_activiti_group_exists
   failed_when: false
   changed_when: false
 
 - name: Register if '{{ activiti_user }}' local user exists
-  ansible.builtin.unarchive: /usr/bin/grep '{{ activiti_user }}' /etc/passwd
+  ansible.builtin.command: /usr/bin/grep '{{ activiti_user }}' /etc/passwd
   register: local_activiti_user_exists
   failed_when: false
   changed_when: false
 
 - name: Ensure group '{{ activiti_group }}' exists
-  ansible.builtin.unarchive: /usr/sbin/lgroupadd -g '{{ activiti_gid }}' '{{ activiti_group }}'
+  ansible.builtin.command: /usr/sbin/lgroupadd -g '{{ activiti_gid }}' '{{ activiti_group }}'
   when: local_activiti_group_exists is failed
 
 - name: Ensure user '{{ activiti_user }}' exists
-  ansible.builtin.unarchive: "/usr/sbin/luseradd -d '{{ activiti_home }}' -s '{{ activiti_shell }}'\
+  ansible.builtin.command: "/usr/sbin/luseradd -d '{{ activiti_home }}' -s '{{ activiti_shell }}'\
    -u '{{ activiti_uid }}' -g '{{ activiti_gid }}' '{{ activiti_user }}'"
   when: local_activiti_user_exists is failed
 
@@ -43,7 +43,7 @@
   loop: '{{ activiti_install_rpm_packages }}'
 
 - name: Correct java version selected
-  community.general.system.alternatives:
+  community.general.alternatives:
     name: java
     link: '{{ alternatives_java_link }}'
     path: '{{ alternatives_java_path }}'
@@ -76,7 +76,7 @@
     state: directory
 
 - name: Register tomcat installed
-  ansible.builtin.unarchive: grep '{{ tomcat_version }}' '{{ tomcat_home }}/RELEASE-NOTES'
+  ansible.builtin.command: grep '{{ tomcat_version }}' '{{ tomcat_home }}/RELEASE-NOTES'
   register: tomcat_installed
   failed_when: false
   changed_when: false
@@ -113,6 +113,7 @@
     dest: '{{ tomcat_home }}/lib'
     owner: '{{ activiti_user }}'
     group: '{{ activiti_group }}'
+    mode: '0755'
 
 - name: Install postgis-jdbc jar
   ansible.builtin.get_url:
@@ -120,6 +121,7 @@
     dest: '{{ tomcat_home }}/lib'
     owner: '{{ activiti_user }}'
     group: '{{ activiti_group }}'
+    mode: '0755'
 
 - name: Create/Ensure tomcat lib dir
   ansible.builtin.file:
@@ -174,7 +176,7 @@
     state: directory
 
 - name: Register log symlink
-  ansible.builtin.unarchive: readlink '{{ tomcat_logs }}'
+  ansible.builtin.command: readlink '{{ tomcat_logs }}'
   register: log_symlink
   failed_when: false
   changed_when: false

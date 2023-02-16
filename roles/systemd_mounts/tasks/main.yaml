@@ -11,6 +11,7 @@
   ansible.builtin.file:
     path: '{{ item }}'
     state: directory
+    mode: '0755'
     attributes: '+i'
   failed_when: false
   loop: '{{ nfs_mountpoint }}'

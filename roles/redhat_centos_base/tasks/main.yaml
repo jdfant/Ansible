@@ -151,6 +151,7 @@
   ansible.builtin.lineinfile:
     path: /etc/modprobe.d/cve-2017-2636.conf
     line: 'install n_hdlc /bin/true'
+    mode: '0755'
     create: true
 
 - name: Set the root password

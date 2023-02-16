@@ -6,7 +6,7 @@
   tasks:
 
     - name: Stopping all Tomcats
-      systemd:
+      ansible.builtin.systemd:
         name: '{{ item }}'
         state: stopped
       loop: '{{ tomcat_services }}'
@@ -15,7 +15,7 @@
       tags: stop_tomcats
 
     - name: Stopping Core Services
-      systemd:
+      ansible.builtin.systemd:
         name: '{{ item }}'
         state: stopped
       loop: '{{ core_services }}'
@@ -24,23 +24,24 @@
       tags: stop_services
 
     - name: Stopping Postgresql
-      systemd:
+      ansible.builtin.systemd:
         name: postgresql-9.6
         state: stopped
       failed_when: false
       tags: stop_postgres
 
     - name: Kill yum and Remove yum.pid
-      shell: /usr/bin/pkill -9 -f yum && rm -f /var/run/yum.pid
+      ansible.builtin.shell: /usr/bin/pkill -9 -f yum && rm -f /var/run/yum.pid
       failed_when: false
       changed_when: false
 
     - name: Run Updates
-      yum:
+      ansible.builtin.yum:
         name: '*'
         update_cache: true
         state: latest
+        update_only: true
 
     - name: Reboot server
-      reboot:
+      ansible.builtin.reboot:
       tags: reboot
